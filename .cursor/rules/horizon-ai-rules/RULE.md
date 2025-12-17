@@ -109,7 +109,7 @@ Infrastructure, not a feature.
 Steps:
 	1.	Integrate WorkOS or Better Auth
 	2.	Implement:
-	•	Sign in
+	•	Sign in / Sign Up
 	•	Session handling
 	•	User identity
 	3.	Attach tenant context to every request
@@ -117,6 +117,12 @@ Steps:
 	•	Admin
 	•	Client
 	•	Internal team (optional)
+
+		Auth Scope Rule:
+			During Phase 01–04, authentication is implemented only
+			for the Admin (Control Plane) application.
+			Client authentication is intentionally deferred to Phase 05,
+			when client-facing flows are introduced.
 
 🚫 No UI beyond basic auth screens.
 

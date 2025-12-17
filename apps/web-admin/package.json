@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@horizon/db": "workspace:*",
-    "@horizon/ui": "workspace:*"
+    "@horizon/ui": "workspace:*",
+    "better-auth": "^1.0.0",
+    "@better-auth/utils": "^0.3.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
