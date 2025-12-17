@@ -55,3 +55,4 @@ export const isProduction = env.NODE_ENV === 'production';
  * Utility to check if we're in test mode
  */
 export const isTest = env.NODE_ENV === 'test';
+
