@@ -2,6 +2,23 @@
   "name": "@horizon/db",
   "version": "0.1.0",
   "private": true,
-  "description": "Database schema, migrations, and client configuration for Horizon"
+  "description": "Database schema, migrations, and client configuration for Horizon",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "prisma": "^7.0.0"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "prisma:generate": "prisma generate",
+    "prisma:format": "prisma format",
+    "type-check": "tsc --noEmit"
+  }
 }
 
