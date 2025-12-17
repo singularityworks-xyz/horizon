@@ -1,0 +1,6 @@
+{
+  "name": "@horizon/db",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Database schema, migrations, and client configuration for Horizon"
+}

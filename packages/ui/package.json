@@ -1,0 +1,32 @@
+{
+  "name": "@horizon/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared UI components and design system for Horizon",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/index.css"
+  },
+  "scripts": {
+    "build": "tsc && mkdir -p dist && cp src/index.css dist/index.css",
+    "dev": "tsc --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.23",
+    "clsx": "^2.1.1",
+    "postcss": "^8.5.6",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "tailwindcss": "^4.1.18"
+  }
+}
