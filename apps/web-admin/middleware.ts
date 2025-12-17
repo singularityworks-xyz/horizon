@@ -17,41 +17,54 @@ const authRoutes = ["/signin", "/signup"]
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Get session from Better Auth
-  const session = await auth.api.getSession({
-    headers: Object.fromEntries(request.headers.entries()),
-  })
+  try {
+    // Get session from Better Auth
+    const session = await auth.api.getSession({
+      headers: Object.fromEntries(request.headers.entries()),
+    })
 
-  // If user is authenticated and trying to access auth routes, redirect to dashboard
-  if (session && authRoutes.some(route => pathname.startsWith(route))) {
-    return NextResponse.redirect(new URL("/dashboard", request.url))
-  }
-
-  // If user is not authenticated and trying to access protected routes, redirect to signin
-  if (!session && protectedRoutes.some(route => pathname.startsWith(route))) {
-    return NextResponse.redirect(new URL("/signin", request.url))
-  }
-
-  // For authenticated users, add tenant context
-  if (session) {
-    // TODO: In a real app, you'd look up the user's tenant from the database
-    // For now, we'll add a placeholder tenant context
-    const tenantContext = {
-      tenantId: "default-tenant-id", // This would come from user lookup
-      userId: session.user.id,
-      role: "admin", // This would come from role lookup
+    // Handle auth route redirects for authenticated users
+    if (session && authRoutes.some(route => pathname.startsWith(route))) {
+      return NextResponse.redirect(new URL("/dashboard", request.url))
     }
 
-    // Add tenant context to request headers for downstream use
-    const response = NextResponse.next()
-    response.headers.set("x-tenant-id", tenantContext.tenantId)
-    response.headers.set("x-user-id", tenantContext.userId)
-    response.headers.set("x-user-role", tenantContext.role)
+    // Handle protected route access for unauthenticated users
+    if (!session && protectedRoutes.some(route => pathname.startsWith(route))) {
+      return NextResponse.redirect(new URL("/signin", request.url))
+    }
 
-    return response
+    // For authenticated users, add tenant context headers
+    // NOTE: These headers are for propagation only - authorization decisions
+    // must re-validate from session/DB, never trust headers as source of truth
+    if (session) {
+      // TODO: Replace with real tenant lookup from database
+      // This is placeholder until tenant validation helpers are implemented
+      const tenantContext = {
+        tenantId: "default-tenant-id", // Will be replaced with real lookup
+        userId: session.user.id,
+        role: "admin", // Will be replaced with role lookup from DB
+      }
+
+      // Add tenant context to request headers for downstream use
+      // These are NOT trusted for authorization - only for convenience
+      const response = NextResponse.next()
+      response.headers.set("x-tenant-id", tenantContext.tenantId)
+      response.headers.set("x-user-id", tenantContext.userId)
+      response.headers.set("x-user-role", tenantContext.role)
+      response.headers.set("x-session-id", session.session.id)
+
+      return response
+    }
+
+    return NextResponse.next()
+  } catch (error) {
+    // On session verification errors, redirect to signin
+    console.error("Middleware session verification error:", error)
+    if (protectedRoutes.some(route => pathname.startsWith(route))) {
+      return NextResponse.redirect(new URL("/signin", request.url))
+    }
+    return NextResponse.next()
   }
-
-  return NextResponse.next()
 }
 
 export const config = {
