@@ -21,6 +21,9 @@ const envSchema = z.object({
   CLOUDFLARE_R2_ACCESS_KEY_ID: z.string().optional(),
   CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().optional(),
   CLOUDFLARE_R2_ACCOUNT_ID: z.string().optional(),
+  CLOUDFLARE_R2_BUCKET_NAME: z.string().optional(),
+  CLOUDFLARE_R2_REGION: z.string().optional(),
+  CLOUDFLARE_R2_PUBLIC_BASE_URL: z.string().url().optional(),
 
   // Application
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -55,4 +58,3 @@ export const isProduction = env.NODE_ENV === 'production';
  * Utility to check if we're in test mode
  */
 export const isTest = env.NODE_ENV === 'test';
-

@@ -6,26 +6,28 @@
 
 export const ENV_EXAMPLE = {
   // Database
-  DATABASE_URL: "postgresql://username:password@localhost:5432/horizon",
+  DATABASE_URL: 'postgresql://username:password@localhost:5432/horizon',
 
   // Authentication (Better Auth)
-  BETTER_AUTH_SECRET: "your-super-secret-key-change-in-production-at-least-32-chars",
-  BETTER_AUTH_URL: "http://localhost:3000",
+  BETTER_AUTH_SECRET: 'your-super-secret-key-change-in-production-at-least-32-chars',
+  BETTER_AUTH_URL: 'http://localhost:3000',
 
   // External Services (Optional - will be added in later phases)
-  OPENAI_API_KEY: "sk-...",
-  WORKOS_API_KEY: "...",
-  WORKOS_CLIENT_ID: "...",
+  OPENAI_API_KEY: 'sk-...',
+  WORKOS_API_KEY: '...',
+  WORKOS_CLIENT_ID: '...',
 
   // File Storage (Optional - will be added in later phases)
-  CLOUDFLARE_R2_ACCESS_KEY_ID: "...",
-  CLOUDFLARE_R2_SECRET_ACCESS_KEY: "...",
-  CLOUDFLARE_R2_ACCOUNT_ID: "...",
+  CLOUDFLARE_R2_ACCESS_KEY_ID: '...',
+  CLOUDFLARE_R2_SECRET_ACCESS_KEY: '...',
+  CLOUDFLARE_R2_ACCOUNT_ID: '...',
+  CLOUDFLARE_R2_BUCKET_NAME: '...',
+  CLOUDFLARE_R2_REGION: '...',
+  CLOUDFLARE_R2_PUBLIC_BASE_URL: 'https://...',
 
   // Application
-  NODE_ENV: "development",
+  NODE_ENV: 'development',
 
   // Feature Flags
-  ENABLE_ANALYTICS: "false",
+  ENABLE_ANALYTICS: 'false',
 } as const;
-

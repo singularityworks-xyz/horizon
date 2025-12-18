@@ -16,7 +16,7 @@
     "build": "tsc && mkdir -p dist && cp src/index.css dist/index.css",
     "dev": "tsc --watch",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint src --ext .ts,.tsx --config ../../.eslintrc.json",
     "lint:fix": "eslint src --ext .ts,.tsx --fix"
   },
   "dependencies": {
@@ -27,6 +27,8 @@
   },
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
     "tailwindcss": "^4.1.18"
   }
 }

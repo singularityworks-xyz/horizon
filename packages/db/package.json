@@ -6,10 +6,12 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
+    "dotenv": "^17.2.3",
     "pg": "^8.11.0"
   },
   "devDependencies": {
     "@types/pg": "^8.11.0",
+    "dotenv-cli": "^11.0.0",
     "prisma": "^7.0.0"
   },
   "main": "./src/index.ts",
@@ -21,4 +23,3 @@
     "type-check": "tsc --noEmit"
   }
 }
-
