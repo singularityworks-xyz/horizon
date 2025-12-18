@@ -61,9 +61,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  role   Role   @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  tasks  Task[] // Tasks assigned to this user
+  tenant        Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  role          Role    @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  tasks         Task[]  // Tasks assigned to this user
+  uploadedAssets Asset[] // Assets uploaded by this user
 
   @@unique([tenantId, email])
   @@map("users")
@@ -195,32 +196,64 @@ model Answer {
   question    Question                @relation(fields: [questionId], references: [id], onDelete: Cascade)
   project     Project?                @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  assets      Asset[]
+
   @@unique([submissionId, questionId]) // One answer per question per submission
   @@map("answers")
 }
 
 // Assets (files/documents) within a tenant
 model Asset {
-  id         String   @id @default(cuid())
-  tenantId   String
-  projectId  String?
-  questionId String?
-  name       String
-  fileName   String
-  mimeType   String
-  size       Int
-  checksum   String // SHA-256 hash for integrity
-  storageKey String // Cloud storage key/path
-  url        String? // Public URL if applicable
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String          @id @default(cuid())
+  tenantId    String
+  projectId   String?
+  questionId  String?
+  answerId    String?
+  workflowId  String?
+  phaseId     String?
+  taskId      String?
+  uploaderId  String
+  name        String
+  fileName    String
+  mimeType    String
+  size        Int
+  checksum    String // SHA-256 hash for integrity
+  storageKey  String // Cloud storage key/path
+  accessLevel AssetAccessLevel @default(TENANT)
+  url         String? // Public URL if applicable
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   // Relations
-  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  project  Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  question Question? @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project    Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  question   Question?  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer     Answer?    @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  workflow   Workflow?  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  phase      Phase?     @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  task       Task?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  uploader   User       @relation(fields: [uploaderId], references: [id], onDelete: Restrict)
+  versions   AssetVersion[]
 
   @@map("assets")
+}
+
+// Asset versions for tracking changes
+model AssetVersion {
+  id         String   @id @default(cuid())
+  assetId    String
+  version    Int
+  checksum   String // SHA-256 hash for integrity
+  size       Int
+  storageKey String // Cloud storage key/path
+  changeLog  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, version])
+  @@map("asset_versions")
 }
 
 // Workflows within a tenant
@@ -239,6 +272,7 @@ model Workflow {
   tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   phases  Phase[]
+  assets  Asset[]
 
   @@unique([tenantId, projectId]) // One workflow per project for now
   @@map("workflows")
@@ -261,6 +295,7 @@ model Phase {
   // Relations
   workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   tasks    Task[]
+  assets   Asset[]
 
   @@map("phases")
 }
@@ -284,6 +319,7 @@ model Task {
   // Relations
   phase    Phase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
   assignee User? @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  assets   Asset[]
 
   @@map("tasks")
 }
@@ -310,6 +346,12 @@ enum ProjectStatus {
   ON_HOLD
   COMPLETED
   CANCELLED
+}
+
+enum AssetAccessLevel {
+  ADMIN_ONLY
+  TENANT
+  PUBLIC
 }
 
 enum QuestionType {
