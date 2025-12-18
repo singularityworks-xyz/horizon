@@ -1,11 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // Enable React Compiler
-    reactCompiler: true,
-    // Enable typed routes
-    typedRoutes: true,
-  },
+  // Enable typed routes (moved from experimental in Next.js 16)
+  typedRoutes: true,
   // Ensure we're only using App Router
   reactStrictMode: true,
   poweredByHeader: false,

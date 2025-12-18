@@ -24,6 +24,7 @@ model Tenant {
   clients                Client[]
   projects               Project[]
   questionnaireTemplates QuestionnaireTemplate[]
+  questionnaireSubmissions QuestionnaireSubmission[]
   assets                 Asset[]
   workflows              Workflow[]
   answers                Answer[]
@@ -101,6 +102,7 @@ model Project {
   tenant                 Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   client                 Client?                 @relation(fields: [clientId], references: [id], onDelete: SetNull)
   questionnaireTemplates QuestionnaireTemplate[]
+  questionnaireSubmissions QuestionnaireSubmission[]
   answers                Answer[]
   assets                 Asset[]
   workflows              Workflow[]
@@ -122,12 +124,35 @@ model QuestionnaireTemplate {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  project   Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  questions Question[]
+  tenant       Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project      Project?                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  questions    Question[]
+  submissions  QuestionnaireSubmission[]
 
   @@unique([tenantId, name, version])
   @@map("questionnaire_templates")
+}
+
+// Questionnaire submissions within a tenant
+model QuestionnaireSubmission {
+  id          String             @id @default(cuid())
+  tenantId    String
+  projectId   String?
+  templateId  String
+  status      SubmissionStatus   @default(DRAFT)
+  submittedAt DateTime?
+  lockedAt    DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  // Relations
+  tenant   Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project  Project?              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  template QuestionnaireTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  answers  Answer[]
+
+  @@unique([tenantId, projectId, templateId]) // One submission per project-template combination
+  @@map("questionnaire_submissions")
 }
 
 // Questions within a questionnaire template
@@ -137,7 +162,7 @@ model Question {
   type        QuestionType
   title       String
   description String?
-  config      Json? // Type-specific configuration (options for select, validation rules, etc.)
+  config      Json? // Type-specific configuration (options, validation rules, conditions, file constraints, etc.)
   order       Int
   required    Boolean      @default(false)
   createdAt   DateTime     @default(now())
@@ -148,25 +173,29 @@ model Question {
   answers  Answer[]
   assets   Asset[]
 
+  @@unique([templateId, order]) // Ensure unique ordering per template
   @@map("questions")
 }
 
 // Answers to questions within a tenant
 model Answer {
-  id          String    @id @default(cuid())
-  tenantId    String
-  questionId  String
-  projectId   String?
-  value       Json // Flexible value storage (string, number, array, object)
-  submittedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  tenantId      String
+  submissionId  String
+  questionId    String
+  projectId     String?
+  value         Json // Flexible value storage (string, number, array, object)
+  submittedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Relations
-  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  project  Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tenant      Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  submission  QuestionnaireSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  question    Question                @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  project     Project?                @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  @@unique([submissionId, questionId]) // One answer per question per submission
   @@map("answers")
 }
 
@@ -289,8 +318,15 @@ enum QuestionType {
   SELECT
   MULTI_SELECT
   FILE_UPLOAD
+  URL
   DATE
   NUMBER
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  LOCKED
 }
 
 enum WorkflowSource {
