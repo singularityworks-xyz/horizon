@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@horizon/db"
 import { guards, apiErrors } from "@/lib/security/guards"
+import { runtime } from "@/lib/api-runtime"
 import {
   CreateSubmissionSchema,
   SubmitAnswerSchema,
@@ -10,8 +11,6 @@ import {
   evaluateConditions,
   AnswerValue,
 } from "@/lib/questionnaire/validation"
-
-export const runtime = "nodejs"
 
 // GET /api/questionnaires/submissions - List submissions for tenant
 export const GET = guards.authenticated(async (request, context) => {

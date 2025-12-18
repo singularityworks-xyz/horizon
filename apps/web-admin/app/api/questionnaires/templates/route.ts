@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@horizon/db"
 import { guards, apiErrors } from "@/lib/security/guards"
+import { runtime } from "@/lib/api-runtime"
 import {
   CreateTemplateSchema,
   UpdateTemplateSchema,
   CreateTemplateInput,
   UpdateTemplateInput,
 } from "@/lib/questionnaire/validation"
-
-export const runtime = "nodejs"
 
 // GET /api/questionnaires/templates - List templates for tenant
 export const GET = guards.adminOnly(async (request, context) => {

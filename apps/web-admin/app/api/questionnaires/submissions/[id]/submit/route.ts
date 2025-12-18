@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@horizon/db"
 import { guards, apiErrors } from "@/lib/security/guards"
+import { runtime } from "@/lib/api-runtime"
 import { validateAnswerAgainstConfig } from "@/lib/questionnaire/validation"
-
-export const runtime = "nodejs"
 
 // POST /api/questionnaires/submissions/[id]/submit - Submit draft for AI processing
 export const POST = guards.authenticated(async (request, context) => {

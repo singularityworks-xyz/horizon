@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth"
 import { NextRequest, NextResponse } from "next/server"
 
+export const runtime = "nodejs"
+
 // Define protected routes that require authentication
 const protectedRoutes = [
   "/dashboard",

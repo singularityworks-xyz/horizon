@@ -29,6 +29,3 @@ export const prisma = globalForPrisma.prisma ?? (() => {
 })()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
-
-// Re-export validation functions for testing
-export * from '../../web-admin/lib/questionnaire/validation'

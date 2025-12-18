@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@horizon/db"
 import { guards, apiErrors } from "@/lib/security/guards"
-
-export const runtime = "nodejs"
+import { runtime } from "@/lib/api-runtime"
 
 // POST /api/questionnaires/templates/[templateId]/clone - Clone template to new version
 export const POST = guards.adminOnly(async (request, context) => {

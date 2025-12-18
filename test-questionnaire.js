@@ -89,12 +89,71 @@ async function testTypeScript() {
   }
 }
 
+// Test 4: Runtime configuration
+console.log('\n4. Testing runtime configuration...');
+
+async function testRuntimeConfig() {
+  try {
+    // Check if API route files have runtime exports
+    const fs = require('fs');
+    const path = require('path');
+
+    const apiRoutes = [
+      'apps/web-admin/app/api/questionnaires/templates/route.ts',
+      'apps/web-admin/app/api/questionnaires/templates/[templateId]/clone/route.ts',
+      'apps/web-admin/app/api/questionnaires/templates/[templateId]/questions/route.ts',
+      'apps/web-admin/app/api/questionnaires/submissions/route.ts',
+      'apps/web-admin/app/api/questionnaires/submissions/[id]/route.ts',
+      'apps/web-admin/app/api/questionnaires/submissions/[id]/submit/route.ts',
+      'apps/web-admin/app/api/questionnaires/submissions/[id]/lock/route.ts',
+      'apps/web-admin/middleware.ts',
+    ];
+
+    let runtimeConfigured = true;
+    for (const route of apiRoutes) {
+      const filePath = path.join(process.cwd(), route);
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf8');
+        // Check for either direct export or import from centralized file
+        const hasRuntime = content.includes('runtime = "nodejs"') ||
+                          (content.includes('import { runtime }') && content.includes('@/lib/api-runtime'));
+        if (!hasRuntime) {
+          console.log(`   ✗ ${route} missing runtime configuration`);
+          runtimeConfigured = false;
+        }
+      }
+    }
+
+    if (runtimeConfigured) {
+      console.log('   ✓ All API routes configured for Node.js runtime');
+    }
+
+    // Check centralized runtime file
+    const runtimeFile = path.join(process.cwd(), 'apps/web-admin/lib/api-runtime.ts');
+    if (fs.existsSync(runtimeFile)) {
+      const content = fs.readFileSync(runtimeFile, 'utf8');
+      if (content.includes('export const runtime = "nodejs"')) {
+        console.log('   ✓ Centralized runtime declaration exists');
+      } else {
+        console.log('   ✗ Centralized runtime declaration incorrect');
+        runtimeConfigured = false;
+      }
+    }
+
+    return runtimeConfigured;
+  } catch (error) {
+    console.log('   ✗ Runtime configuration test failed:', error.message);
+    return false;
+  }
+}
+
 // Run all tests
 async function runTests() {
   const results = await Promise.all([
     testDatabase(),
     testPrismaSchema(),
-    testTypeScript()
+    testTypeScript(),
+    testRuntimeConfig()
   ]);
 
   const passed = results.filter(Boolean).length;
