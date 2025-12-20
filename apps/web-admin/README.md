@@ -6,18 +6,39 @@ Admin portal for Horizon - manage clients, review questionnaires, edit workflows
 
 This app uses Better Auth for authentication with session-based security and RBAC.
 
-### Environment Variables
+## Environment Setup
 
-Create a `.env.local` file in the web-admin directory:
+### Development
+
+1. Copy the environment template:
 
 ```bash
-# Better Auth Configuration
-BETTER_AUTH_SECRET="your-super-secret-key-change-in-production"
-BETTER_AUTH_URL="http://localhost:3000"
-
-# Database (inherited from monorepo root)
-DATABASE_URL="postgresql://username:password@localhost:5432/horizon_dev"
+cp .env.example .env.local
 ```
+
+2. Fill in your environment variables in `.env.local`
+
+3. Start the development server:
+
+```bash
+npm run dev
+```
+
+### Environment Variables
+
+Required variables:
+
+- `BETTER_AUTH_SECRET` - Secret for Better Auth (generate with `openssl rand -base64 32`)
+- `BETTER_AUTH_URL` - URL of your application (e.g., `http://localhost:3000`)
+- `NEXT_PUBLIC_BETTER_AUTH_URL` - Public URL for client-side auth (same as BETTER_AUTH_URL in development)
+- `DATABASE_URL` - PostgreSQL connection string
+- `OPENROUTER_API_KEY` - API key for OpenRouter
+- `OPENAI_API_KEY` - API key for OpenAI
+- `GEMINI_API_KEY` - API key for Google Gemini
+- `CLOUDFLARE_R2_ACCESS_KEY_ID` - Cloudflare R2 access key
+- `CLOUDFLARE_R2_SECRET_ACCESS_KEY` - Cloudflare R2 secret key
+- `CLOUDFLARE_R2_ACCOUNT_ID` - Cloudflare account ID
+- `CLOUDFLARE_R2_BUCKET_NAME` - Cloudflare R2 bucket name
 
 ### Dependencies
 

@@ -5,7 +5,7 @@ import {
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { env } from '@horizon/config';
+import { env } from '@/lib/env';
 
 // R2 client configuration
 export const r2Client = new S3Client({

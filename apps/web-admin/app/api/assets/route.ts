@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@horizon/db';
 import { guards, apiErrors } from '@/lib/security/guards';
 import { AssetQuerySchema } from '@/lib/assets/validation';
-import { runtime } from '@/lib/api-runtime';
+export const runtime = 'nodejs';
 
 // Context type for asset handlers
 export type AssetContext = {
@@ -96,5 +96,3 @@ export async function handleListAssets(
     return apiErrors.internalError('Failed to fetch assets');
   }
 }
-
-export { runtime };

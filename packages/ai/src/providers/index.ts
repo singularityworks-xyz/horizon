@@ -9,7 +9,7 @@ import { OpenRouterProvider } from './openrouter';
 import { GeminiProvider } from './gemini';
 
 // Provider configuration from environment
-import { env } from '@horizon/config';
+import { env } from '@horizon/config/src/env';
 const openRouterApiKey = env.OPENROUTER_API_KEY;
 const geminiApiKey = env.GEMINI_API_KEY;
 

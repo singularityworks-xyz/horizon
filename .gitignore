@@ -25,10 +25,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Environment files
+# Environment files with secrets
+.env.local
+.env.*.local
 .env
-.env.*
+
+# Keep example files
 !.env.example
+!.env.local.example
 
 # Editor and OS
 .DS_Store

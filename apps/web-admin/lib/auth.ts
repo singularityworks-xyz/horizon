@@ -1,10 +1,11 @@
-import { betterAuth } from "better-auth"
-import { prismaAdapter } from "better-auth/adapters/prisma"
-import { prisma } from "@horizon/db"
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { prisma } from '@horizon/db';
+import { env } from '@/lib/env';
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: "postgresql",
+    provider: 'postgresql',
   }),
   emailAndPassword: {
     enabled: true,
@@ -16,6 +17,6 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },
   },
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-  secret: process.env.BETTER_AUTH_SECRET || "fallback-secret-change-in-prod",
-})
+  baseURL: env.BETTER_AUTH_URL,
+  secret: env.BETTER_AUTH_SECRET,
+});

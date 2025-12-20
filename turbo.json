@@ -1,11 +1,46 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalDependencies": ["**/.env.*local", "**/.env"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["src/**", "lib/**", "index.ts", "index.js", "app/**"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "NEXT_PUBLIC_BETTER_AUTH_URL",
+        "DATABASE_URL",
+        "OPENROUTER_API_KEY",
+        "OPENAI_API_KEY",
+        "GEMINI_API_KEY",
+        "CLOUDFLARE_R2_ACCESS_KEY_ID",
+        "CLOUDFLARE_R2_SECRET_ACCESS_KEY",
+        "CLOUDFLARE_R2_ACCOUNT_ID",
+        "CLOUDFLARE_R2_BUCKET_NAME",
+        "NODE_ENV",
+        "ENABLE_ANALYTICS"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "env": [
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "NEXT_PUBLIC_BETTER_AUTH_URL",
+        "DATABASE_URL",
+        "OPENROUTER_API_KEY",
+        "OPENAI_API_KEY",
+        "GEMINI_API_KEY",
+        "CLOUDFLARE_R2_ACCESS_KEY_ID",
+        "CLOUDFLARE_R2_SECRET_ACCESS_KEY",
+        "CLOUDFLARE_R2_ACCOUNT_ID",
+        "CLOUDFLARE_R2_BUCKET_NAME",
+        "NODE_ENV",
+        "ENABLE_ANALYTICS"
+      ]
     },
     "lint": {
       "dependsOn": ["^build"],
@@ -15,10 +50,6 @@
       "dependsOn": ["^build"],
       "inputs": ["src/**", "lib/**", "index.ts", "index.js", "app/**"]
     },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
     "type-check": {
       "dependsOn": ["^build"],
       "inputs": ["src/**", "lib/**", "index.ts", "index.js", "app/**", "tsconfig.json"]
@@ -26,11 +57,5 @@
     "clean": {
       "cache": false
     }
-  },
-  "globalDependencies": [
-    "tsconfig.json",
-    ".eslintrc.json",
-    ".prettierrc",
-    "turbo.json"
-  ]
+  }
 }

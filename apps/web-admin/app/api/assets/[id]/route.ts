@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@horizon/db';
 import { guards, apiErrors } from '@/lib/security/guards';
 import { createPresignedDownloadUrl, validateStorageConfig } from '@/lib/storage/r2';
-import { runtime } from '@/lib/api-runtime';
+export const runtime = 'nodejs';
 
 // Context type for asset handlers
 export type AssetContext = {
@@ -156,5 +156,3 @@ export async function handleDeleteAsset(
     return apiErrors.internalError('Failed to delete asset');
   }
 }
-
-export { runtime };

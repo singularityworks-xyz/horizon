@@ -321,7 +321,7 @@ export const ai = new AiOrchestrator();
 
 // Config validation helper (used by health checks)
 export async function validateAiConfiguration(tenantId?: string): Promise<ConfigValidationResult> {
-  const { env } = await import('@horizon/config');
+  const { env } = await import('@horizon/config/src/env');
   const { rateLimiter } = await import('./rate-limit');
   const { promptRegistry } = await import('./prompts');
 

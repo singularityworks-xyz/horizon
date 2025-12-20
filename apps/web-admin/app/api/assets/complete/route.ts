@@ -5,7 +5,7 @@ import { guards, apiErrors } from '@/lib/security/guards';
 import { AssetCompleteSchema, AssetPresignSchema } from '@/lib/assets/validation';
 import { scanForViruses, validateScanResult } from '@/lib/assets/virus-scan';
 import { createPresignedDownloadUrl, validateStorageConfig } from '@/lib/storage/r2';
-import { runtime } from '@/lib/api-runtime';
+export const runtime = 'nodejs';
 
 // Context type for asset handlers
 export type AssetContext = {
@@ -227,5 +227,3 @@ async function validateLinkedEntities(
 
   await Promise.all(validations);
 }
-
-export { runtime };

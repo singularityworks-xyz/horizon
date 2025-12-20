@@ -6,14 +6,14 @@
   "dependencies": {
     "ai": "^4.0.0",
     "@ai-sdk/openai": "^1.0.0",
-    "@ai-sdk/google": "^0.1.0",
-    "zod": "^3.22.4"
+    "@ai-sdk/google": "^2.0.0",
+    "zod": "^3.22.4",
+    "@horizon/config": "workspace:*",
+    "@horizon/db": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "vitest": "^1.0.0",
-    "@horizon/db": "workspace:*",
-    "@horizon/config": "workspace:*"
+    "vitest": "^1.0.0"
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",

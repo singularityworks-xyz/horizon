@@ -5,11 +5,11 @@ import { runtime } from '@/lib/api-runtime';
 import { UpdateWorkflowSchema, UpdateWorkflowInput } from '@/lib/workflow/validation';
 import { calculateWorkflowDuration, computeWorkflowTimeline } from '@/lib/workflow/compute';
 
-// GET /api/workflows/[id] - Fetch workflow with computed fields
+// GET /api/workflows/[workflowId] - Fetch workflow with computed fields
 export const GET = guards.adminOnly(async (request, context) => {
   try {
-    const { searchParams } = new URL(request.url);
-    const workflowId = searchParams.get('id');
+    const { params } = request as any; // Next.js params handling
+    const workflowId = params.workflowId;
 
     if (!workflowId) {
       return apiErrors.badRequest('Workflow ID is required');
@@ -143,8 +143,8 @@ export const PATCH = guards.adminOnly(async (request, context) => {
 // DELETE /api/workflows/[id] - Archive workflow (soft delete)
 export const DELETE = guards.adminOnly(async (request, context) => {
   try {
-    const { searchParams } = new URL(request.url);
-    const workflowId = searchParams.get('id');
+    const { params } = request as any; // Next.js params handling
+    const workflowId = params.workflowId;
 
     if (!workflowId) {
       return apiErrors.badRequest('Workflow ID is required');

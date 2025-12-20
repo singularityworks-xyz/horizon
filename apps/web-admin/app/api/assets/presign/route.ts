@@ -13,7 +13,7 @@ import {
   validateStorageConfig,
 } from '@/lib/storage/r2';
 import { randomUUID } from 'crypto';
-import { runtime } from '@/lib/api-runtime';
+export const runtime = 'nodejs';
 
 // Context type for asset handlers
 export type AssetContext = {
@@ -182,5 +182,3 @@ async function validateLinkedEntities(
 
   await Promise.all(validations);
 }
-
-export { runtime };
