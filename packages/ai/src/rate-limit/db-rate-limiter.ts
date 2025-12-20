@@ -52,7 +52,7 @@ export class DbRateLimiter {
     let mostRestrictiveResult: RateLimitResult | null = null;
 
     for (const { name: windowName, config } of windows) {
-      const windowStart = this.getWindowStart(now, config.windowMs);
+      const windowStart = await this.getWindowStart(now, config.windowMs);
 
       const existing = await prisma.aiRateLimit.findUnique({
         where: {
@@ -118,7 +118,7 @@ export class DbRateLimiter {
     config: { maxRequests: number; windowMs: number; window: string }
   ): Promise<RateLimitResult> {
     const now = new Date();
-    const windowStart = this.getWindowStart(now, config.windowMs);
+    const windowStart = await this.getWindowStart(now, config.windowMs);
 
     // Check current count in this window
     const existing = await prisma.aiRateLimit.findUnique({
@@ -158,7 +158,7 @@ export class DbRateLimiter {
     // Use a transaction to atomically update all windows
     await prisma.$transaction(async (tx) => {
       for (const windowResult of windowResults) {
-        const windowStart = this.getWindowStart(now, windowResult.config.windowMs);
+        const windowStart = await this.getWindowStart(now, windowResult.config.windowMs);
 
         await tx.aiRateLimit.upsert({
           where: {
@@ -189,10 +189,41 @@ export class DbRateLimiter {
    * Calculate the start of the current window for a given timestamp and window size
    * Uses floor division to align windows to exact boundaries
    */
-  private getWindowStart(now: Date, windowMs: number): Date {
-    // Align to window boundaries by flooring the timestamp
-    const windowStartMs = Math.floor(now.getTime() / windowMs) * windowMs;
-    return new Date(windowStartMs);
+  private async getWindowStart(now: Date, windowMs: number): Promise<Date> {
+    // Map windowMs to Postgres date_trunc units
+    let windowType: 'minute' | 'hour' | 'day';
+
+    switch (windowMs) {
+      case 60 * 1000: // 1 minute
+        windowType = 'minute';
+        break;
+      case 60 * 60 * 1000: // 1 hour
+        windowType = 'hour';
+        break;
+      case 24 * 60 * 60 * 1000: // 1 day
+        windowType = 'day';
+        break;
+      default:
+        // Fallback for unknown window sizes
+        return new Date(Math.floor(now.getTime() / windowMs) * windowMs);
+    }
+
+    try {
+      // Use Postgres date_trunc for consistent window alignment
+      const result = await this.prisma.$queryRaw<{ window_start: Date }[]>`
+        SELECT date_trunc(${windowType}, ${now}::timestamp) as window_start
+      `;
+
+      if (!result || result.length === 0) {
+        throw new Error('Failed to calculate window start');
+      }
+
+      return result[0].window_start;
+    } catch (error) {
+      // Fallback to JS calculation if raw query fails
+      console.warn('Failed to use date_trunc, falling back to JS calculation:', error);
+      return new Date(Math.floor(now.getTime() / windowMs) * windowMs);
+    }
   }
 
   /**

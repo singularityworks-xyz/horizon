@@ -39,6 +39,13 @@ export const GET = guards.adminOnly(async (request, context) => {
         project: {
           select: { id: true, name: true },
         },
+        aiApprovedBy: {
+          select: { id: true, firstName: true, lastName: true },
+        },
+        aiWorkflowGenerations: {
+          orderBy: { createdAt: 'desc' },
+          take: 1, // Most recent generation attempt
+        },
         _count: {
           select: { phases: true },
         },
