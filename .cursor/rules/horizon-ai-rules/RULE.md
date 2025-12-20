@@ -4,7 +4,6 @@ alwaysApply: true
 
 In this project, all AI agents MUST adhere to the following mandatory coding rules without exception. Also i am giving you the documentation of the project to help you understand the codebase better and what the project is going to be about.
 
-
 Below is a single, authoritative, step-by-step build & development workflow for HORIZON that both you and any AI IDE (Cursor, Windsurf, Copilot agents) can follow without ambiguity.
 
 This is not a roadmap, not marketing, not abstract.
@@ -19,10 +18,10 @@ HORIZON — System Build & Development Workflow (Authoritative)
 Progress Overview:
 ✅ PHASE 0 — Project & Monorepo Foundation (Completed)
 ✅ PHASE 1 — Core Infrastructure Layer (COMPLETED)
-🔄 PHASE 2 — Domain Logic (Next: Questionnaire Engine, Asset Management, Workflow Models)
-⏳ PHASE 3 — AI Orchestration Layer
-⏳ PHASE 4 — Derived State & Performance
-⏳ PHASE 5 — Client Portal (includes Client Authentication)
+✅ PHASE 2 — Domain Logic (COMPLETED)
+✅ PHASE 3 — AI Orchestration Layer (COMPLETED)
+✅ PHASE 4 — Derived State & Performance (COMPLETED)
+🔄 PHASE 5 — Client Portal (includes Client Authentication) (Next: Build client-facing UI for questionnaire submission and progress tracking)
 ⏳ PHASE 6 — Admin Portal (Control Plane)
 ⏳ PHASE 7 — End-to-End Integration
 ⏳ PHASE 8 — Production Deployment
@@ -33,12 +32,12 @@ Mental Model (Read Once)
 
 Horizon is built in layers, not features.
 
-Infrastructure → Domain → AI → Portals → SaaS
+Infrastructure → Domain → AI → Derived State → Portals → SaaS
 
 You never skip layers. You never build UI before domain logic.
 Everything downstream depends on upstream being correct.
 
-Current Status: ✅ Infrastructure complete, ready for Domain Logic (PHASE 2)
+Current Status: ✅ Core platform complete, ready for UI development (PHASE 5)
 
 ⸻
 
@@ -48,30 +47,27 @@ Goal
 
 Create a stable, scalable base that all features depend on.
 
-Steps
-	1.	Initialize Monorepo
-	•	Setup Turborepo
-	•	Define apps/ and packages/
-	•	Decide app boundaries:
-	•	apps/web-client
-	•	apps/web-admin
-	•	apps/api (if separated)
-	•	packages/ui
-	•	packages/types
-	•	packages/db
-	•	packages/config
-	2.	Global Tooling
-	•	TypeScript strict mode
-	•	ESLint + Prettier
-	•	Shared tsconfig
-	•	Env handling strategy
-	3.	Frontend Runtime Setup
-	•	Next.js 16
-	•	React 19
-	•	App Router only
-	•	Typed routes enabled
-	•	React Compiler enabled
-	•	Tailwind + shadcn v2
+Steps 1. Initialize Monorepo
+• Setup Turborepo
+• Define apps/ and packages/
+• Decide app boundaries:
+• apps/web-client
+• apps/web-admin
+• apps/api (if separated)
+• packages/ui
+• packages/types
+• packages/db
+• packages/config 2. Global Tooling
+• TypeScript strict mode
+• ESLint + Prettier
+• Shared tsconfig
+• Env handling strategy 3. Frontend Runtime Setup
+• Next.js 16
+• React 19
+• App Router only
+• Typed routes enabled
+• React Compiler enabled
+• Tailwind + shadcn v2
 
 ❗ No features yet. No auth. No database calls.
 
@@ -91,29 +87,29 @@ This comes first or nothing scales.
 Implemented first, before any UI.
 
 Entities defined:
-	✅	Tenant (Agency)
-	✅	User
-	✅	Role
-	✅	Project
-	✅	Client
-	✅	QuestionnaireTemplate
-	✅	Question
-	✅	Answer
-	✅	Asset
-	✅	Workflow
-	✅	Phase
-	✅	Task
-	✅	Progress
+✅ Tenant (Agency)
+✅ User
+✅ Role
+✅ Project
+✅ Client
+✅ QuestionnaireTemplate
+✅ Question
+✅ Answer
+✅ Asset
+✅ Workflow
+✅ Phase
+✅ Task
+✅ Progress
 
 Key rules implemented:
-	✅	Every row is tenant-scoped
-	✅	No orphan data
-	✅	Explicit relations
+✅ Every row is tenant-scoped
+✅ No orphan data
+✅ Explicit relations
 
 Then:
-	✅	Setup Prisma v7
-	✅	Connect Neon DB (environment configured)
-	✅	Prisma generate wired into monorepo
+✅ Setup Prisma v7
+✅ Connect Neon DB (environment configured)
+✅ Prisma generate wired into monorepo
 
 ⸻
 
@@ -122,24 +118,24 @@ Then:
 Infrastructure, not a feature.
 
 Steps completed:
-	✅	Integrate Better Auth
-	✅	Implement:
-	•	Sign in / Sign Up
-	•	Session handling
-	•	User identity
-	✅	Attach tenant context to every request
-	✅	Implement RBAC
-	•	Admin
-	•	Client
-	•	Internal team (framework ready)
+✅ Integrate Better Auth
+✅ Implement:
+• Sign in / Sign Up
+• Session handling
+• User identity
+✅ Attach tenant context to every request
+✅ Implement RBAC
+• Admin
+• Client
+• Internal team (framework ready)
 
-		Auth Scope Rule (RESPECTED):
-			✅ During Phase 01–04, authentication is implemented only
-			for the Admin (Control Plane) application.
-			⏳ Client authentication is intentionally deferred to Phase 05,
-			when client-facing flows are introduced.
+    	Auth Scope Rule (RESPECTED):
+    		✅ During Phase 01–04, authentication is implemented only
+    		for the Admin (Control Plane) application.
+    		⏳ Client authentication is intentionally deferred to Phase 05,
+    		when client-facing flows are introduced.
 
-		Infrastructure Ready: Database, Admin Auth, Security Middleware, RBAC
+    	Infrastructure Ready: Database, Admin Auth, Security Middleware, RBAC
 
 🚫 No UI beyond basic auth screens.
 
@@ -148,10 +144,10 @@ Steps completed:
 3. Request Security & Middleware ✅ COMPLETED
 
 Before features:
-	✅	Auth middleware (session verification + tenant headers)
-	✅	Tenant validation (Prisma-based access control)
-	✅	Role checks (RBAC enforcement)
-	✅	API boundary enforcement (guards prevent cross-tenant leaks)
+✅ Auth middleware (session verification + tenant headers)
+✅ Tenant validation (Prisma-based access control)
+✅ Role checks (RBAC enforcement)
+✅ API boundary enforcement (guards prevent cross-tenant leaks)
 
 This prevents rewrites later - security boundaries established.
 
@@ -164,7 +160,7 @@ Infrastructure Now Available for PHASE 2+:
 
 ⸻
 
-PHASE 2 — Domain Logic (No UI Yet) 🔄 NEXT
+PHASE 2 — Domain Logic (No UI Yet) ✅ COMPLETED
 
 Goal
 
@@ -172,87 +168,73 @@ Build Horizon’s business brain without worrying about screens.
 
 ⸻
 
-4. Questionnaire Engine (Core Domain)
+4. Questionnaire Engine (Core Domain) ✅ COMPLETED
 
-Implement in this order:
-	1.	Questionnaire Templates
-	•	Admin-defined
-	•	Versioned
-	2.	Questions
-	•	Types (text, select, upload, etc.)
-	3.	Answer Storage
-	•	Normalized
-	•	Validated
-	4.	Submission Lifecycle
-	•	Draft
-	•	Submitted
-	•	Locked
+Implemented:
+✅ Questionnaire Templates (admin-defined, versioned)
+✅ Questions (text, textarea, select, multi-select, number, date, file upload)
+✅ Answer Storage (normalized, validated)
+✅ Submission Lifecycle (Draft → Submitted → Locked)
+✅ Conditional logic and validation rules
 
-This is the input engine for AI.
+This powers the AI input pipeline.
 
 ⸻
 
-5. Asset Management System
+5. Asset Management System ✅ COMPLETED
 
-Order matters:
-	1.	Asset metadata schema
-	2.	Upload validation
-	3.	Cloud storage (R2)
-	4.	Asset linking to:
-	•	Project
-	•	Questionnaire
-	•	Workflow
-
-No UI polish yet. Just correctness.
+Implemented:
+✅ Asset metadata schema with Cloudflare R2 storage
+✅ Upload validation (file type, size, virus scanning)
+✅ Secure presigned URLs for direct R2 uploads
+✅ Asset linking to Projects, Questionnaires, Workflows
+✅ Tenant-scoped access controls
 
 ⸻
 
-6. Workflow Domain Models
+6. Workflow Domain Models ✅ COMPLETED
 
-Define before AI:
-	•	Workflow
-	•	Phases
-	•	Tasks
-	•	Timeline rules
-	•	Editable vs AI-generated flags
+Implemented:
+✅ Workflow entity (tenant-scoped, source tracking)
+✅ Phase entity (with intents, status, ordering)
+✅ Task entity (with priority, assignee, due dates, dependencies)
+✅ Timeline computation engine (critical path analysis)
+✅ Editable vs AI-generated flags and approval workflow
 
-This is the output contract AI must follow.
+This defines the AI output contract.
 
 ⸻
 
-PHASE 3 — AI Orchestration Layer
+PHASE 3 — AI Orchestration Layer ✅ COMPLETED
 
 Goal
 
-AI should generate structured data, not UI blobs.
+AI generates structured data, not UI blobs.
 
 ⸻
 
-7. AI Integration Setup
-	1.	Vercel AI SDK integration
-	2.	Provider abstraction (OpenRouter / Gemini)
-	3.	Rate limiting
-	4.	Prompt versioning strategy
+7. AI Integration Setup ✅ COMPLETED
+   ✅ Vercel AI SDK integration (@ai-sdk/openai, @ai-sdk/google)
+   ✅ Provider abstraction (OpenRouter primary, Gemini fallback)
+   ✅ Rate limiting (per-tenant, database-backed)
+   ✅ Prompt versioning strategy (filesystem-based registry)
 
 ⸻
 
-8. Workflow Generation Pipeline
+8. Workflow Generation Pipeline ✅ COMPLETED
 
-Strict order:
-	1.	Normalize questionnaire answers
-	2.	Resolve:
-	•	Project type
-	•	Package
-	•	Phase templates
-	3.	Generate workflow via AI
-	4.	Validate AI output against schema
-	5.	Persist as editable workflow
+Implemented strict order:
+✅ Normalize questionnaire answers (type-safe extraction)
+✅ Resolve context (project type, package tier, phase templates)
+✅ Generate via AI (multi-provider with fallback, structured output)
+✅ Validate output (schema validation, business rules)
+✅ Persist as editable workflow (DRAFT status, approval required)
 
-AI is an assistant, not the source of truth.
+AI remains an assistant, not the source of truth - admin approval required.
 
 ⸻
 
-PHASE 4 — Derived State & Performance
+PHASE 4 — Derived State & Performance ✅ COMPLETED
 
 Goal
 
@@ -260,15 +242,55 @@ Make Horizon fast and stable before adding UI.
 
 ⸻
 
-9. Caching & Derived Views
+Phase 4a — IMPLEMENTED: Workflow Snapshots, Timeline Persistence, Read Boundaries
 
-Implement Redis for:
-	•	Workflow snapshots
-	•	Client read-only views
-	•	Progress aggregation
-	•	Timeline calculations
+✅ COMPLETED - All core requirements implemented
 
-This avoids recomputation hell.
+1️⃣ Workflow Snapshot (derived, read-only) ✅ IMPLEMENTED
+
+Database: WorkflowSnapshot + WorkflowSnapshotPhase/Task tables
+
+- Created only when workflow status → ACTIVE (publish/approval)
+- Immutable structure with computed timeline + dependencies
+- Progress stored separately (mutable derived state)
+- Eliminates recomputation hell for client queries
+
+2️⃣ Derived timeline calculation (persisted) ✅ IMPLEMENTED
+
+Using existing computeWorkflowTimeline():
+
+- Computed once at snapshot creation
+- Stored as JSON in snapshot.timeline
+- No runtime recomputation needed
+- Critical path analysis preserved
+
+3️⃣ Progress aggregation (stored, not cached) ✅ IMPLEMENTED
+
+WorkflowSnapshotProgress table:
+
+- totalTasks, completedTasks counters
+- perPhase: { phaseOrder: { total, completed, percentage } }
+- Updated atomically with task completion mutations
+- Enables fast client views without joins
+
+4️⃣ Explicit read boundary for clients ✅ IMPLEMENTED
+
+Client APIs read from snapshots only:
+
+- GET /api/client/workflow-snapshots
+- createClientSnapshotQuery() helper
+- Never touch Workflow/Task tables
+- AI approval gate preserved (approval → ACTIVE → snapshot)
+
+⸻
+
+Phase 4b — CORRECTLY DEFERRED (No premature optimization)
+
+❌ Redis - Deferred until UI traffic exists
+❌ Cache invalidation strategy - Deferred until real usage patterns
+❌ TTL tuning - Deferred until access patterns known
+
+Result: Clean architecture without speculative complexity.
 
 ⸻
 
@@ -282,17 +304,11 @@ Clients submit data and track progress — nothing more.
 
 10. Client Portal Core
 
-Order:
-	1.	Auth-gated access
-	2.	Project dashboard
-	3.	Questionnaire UI
-	4.	Asset upload UI
-	5.	Read-only workflow view
-	6.	Progress visibility
+Order: 1. Auth-gated access 2. Project dashboard 3. Questionnaire UI 4. Asset upload UI 5. Read-only workflow view 6. Progress visibility
 
 Rules:
-	•	No editing workflows
-	•	No admin actions
+• No editing workflows
+• No admin actions
 
 ⸻
 
@@ -306,14 +322,7 @@ Admins manage everything AI creates.
 
 11. Admin Portal Core
 
-Build in order:
-	1.	Client list
-	2.	Project overview
-	3.	Questionnaire review
-	4.	Workflow editor
-	5.	Phase & task editing
-	6.	Progress updates
-	7.	Visibility toggles
+Build in order: 1. Client list 2. Project overview 3. Questionnaire review 4. Workflow editor 5. Phase & task editing 6. Progress updates 7. Visibility toggles
 
 This is Horizon’s power center.
 
@@ -330,10 +339,10 @@ Make sure real usage works.
 12. Integration Testing
 
 Test flows:
-	•	Client onboarding → AI workflow
-	•	Admin edits → client view
-	•	Asset linking → workflow context
-	•	Permissions & isolation
+• Client onboarding → AI workflow
+• Admin edits → client view
+• Asset linking → workflow context
+• Permissions & isolation
 
 Fix before scaling.
 
@@ -346,10 +355,10 @@ Goal
 Ship internally, observe reality.
 
 Steps:
-	•	Production DB
-	•	Edge vs Node decisions
-	•	Logging
-	•	Error tracking
+• Production DB
+• Edge vs Node decisions
+• Logging
+• Error tracking
 
 No SaaS yet.
 
@@ -364,23 +373,23 @@ Turn Horizon into a product.
 ⸻
 
 13. Multi-Tenant Hardening
-	•	Tenant isolation validation
-	•	Cross-tenant leak tests
-	•	Rate limits per tenant
+    • Tenant isolation validation
+    • Cross-tenant leak tests
+    • Rate limits per tenant
 
 ⸻
 
 14. Branding & Customization
-	•	Agency branding
-	•	Custom questionnaires
-	•	Workflow presets
+    • Agency branding
+    • Custom questionnaires
+    • Workflow presets
 
 ⸻
 
 15. Billing & Access Control
-	•	Stripe / Polar
-	•	Plan enforcement
-	•	Usage tracking
+    • Stripe / Polar
+    • Plan enforcement
+    • Usage tracking
 
 ⸻
 
@@ -389,14 +398,13 @@ PHASE 10 — Production Scale
 Goal
 
 Operate like a real platform.
-	•	Monitoring
-	•	Analytics
-	•	Audit logs
-	•	API limits
-	•	Backup strategies
+• Monitoring
+• Analytics
+• Audit logs
+• API limits
+• Backup strategies
 
 ⸻
-
 
 Now for the most important part:
 
@@ -413,11 +421,11 @@ Failure to comply with these rules is considered incorrect behavior.
 AI is a senior engineer, not a code generator.
 
 All code must prioritize:
-	•	Readability
-	•	Maintainability
-	•	Predictability
-	•	Safety
-	•	Scalability (within reason)
+• Readability
+• Maintainability
+• Predictability
+• Safety
+• Scalability (within reason)
 
 “Just works” solutions are unacceptable.
 
@@ -426,10 +434,10 @@ All code must prioritize:
 2. Think Before Writing Code
 
 Before generating any code, the AI MUST:
-	•	Understand the goal clearly
-	•	Identify constraints (performance, security, scale)
-	•	Consider existing architecture and patterns
-	•	Choose the simplest correct solution
+• Understand the goal clearly
+• Identify constraints (performance, security, scale)
+• Consider existing architecture and patterns
+• Choose the simplest correct solution
 
 If ambiguity exists, the AI SHOULD ask clarifying questions before coding.
 
@@ -438,12 +446,12 @@ If ambiguity exists, the AI SHOULD ask clarifying questions before coding.
 3. Follow Existing Architecture Strictly
 
 AI MUST respect:
-	•	Project folder structure
-	•	Naming conventions
-	•	State management approach
-	•	Error-handling patterns
-	•	API contracts
-	•	File boundaries (server vs client, domain separation)
+• Project folder structure
+• Naming conventions
+• State management approach
+• Error-handling patterns
+• API contracts
+• File boundaries (server vs client, domain separation)
 
 🚫 Do NOT introduce new patterns, abstractions, or libraries unless explicitly instructed.
 
@@ -452,10 +460,10 @@ AI MUST respect:
 4. Code Readability Is Mandatory
 
 All code MUST:
-	•	Use descriptive variable, function, and file names
-	•	Follow single-responsibility principle
-	•	Avoid deeply nested logic
-	•	Be understandable by a junior developer
+• Use descriptive variable, function, and file names
+• Follow single-responsibility principle
+• Avoid deeply nested logic
+• Be understandable by a junior developer
 
 Preference order:
 Readable > Clever > Short
@@ -465,10 +473,10 @@ Readable > Clever > Short
 5. Type Safety Is Non-Negotiable
 
 AI MUST:
-	•	Use strong typing (TypeScript or equivalent)
-	•	Avoid any and unsafe casts
-	•	Define interfaces, types, or schemas
-	•	Validate external and user-provided data
+• Use strong typing (TypeScript or equivalent)
+• Avoid any and unsafe casts
+• Define interfaces, types, or schemas
+• Validate external and user-provided data
 
 Types are considered part of documentation.
 
@@ -477,10 +485,10 @@ Types are considered part of documentation.
 6. Deterministic & Predictable Behavior
 
 AI-generated code MUST:
-	•	Avoid hidden side effects
-	•	Avoid implicit magic behavior
-	•	Be deterministic and explainable
-	•	Avoid reliance on global mutable state
+• Avoid hidden side effects
+• Avoid implicit magic behavior
+• Be deterministic and explainable
+• Avoid reliance on global mutable state
 
 If behavior is non-obvious, intent MUST be documented.
 
@@ -489,16 +497,16 @@ If behavior is non-obvious, intent MUST be documented.
 7. Error Handling & Fail Safety
 
 AI MUST:
-	•	Anticipate failure scenarios
-	•	Handle null/undefined safely
-	•	Use explicit error handling
-	•	Fail early and loudly
-	•	Never swallow errors silently
+• Anticipate failure scenarios
+• Handle null/undefined safely
+• Use explicit error handling
+• Fail early and loudly
+• Never swallow errors silently
 
 Every error should be:
-	•	Meaningful
-	•	Actionable
-	•	Logged or surfaced properly
+• Meaningful
+• Actionable
+• Logged or surfaced properly
 
 ⸻
 
@@ -507,11 +515,11 @@ Every error should be:
 AI MUST assume hostile inputs.
 
 Required practices:
-	•	Never trust client-side data
-	•	Sanitize and validate inputs
-	•	Never hardcode secrets or tokens
-	•	Use environment variables
-	•	Avoid leaking internal errors or stack traces
+• Never trust client-side data
+• Sanitize and validate inputs
+• Never hardcode secrets or tokens
+• Use environment variables
+• Avoid leaking internal errors or stack traces
 
 Sensitive domains (auth, payments, user data) require extra caution.
 
@@ -520,23 +528,23 @@ Sensitive domains (auth, payments, user data) require extra caution.
 9. Performance With Common Sense
 
 AI SHOULD:
-	•	Avoid obvious performance pitfalls (e.g., unnecessary loops, repeated DB calls)
-	•	Use caching where logically required
-	•	Avoid unnecessary re-renders or recomputations
+• Avoid obvious performance pitfalls (e.g., unnecessary loops, repeated DB calls)
+• Use caching where logically required
+• Avoid unnecessary re-renders or recomputations
 
 AI MUST NOT:
-	•	Prematurely optimize
-	•	Over-engineer for hypothetical scale
+• Prematurely optimize
+• Over-engineer for hypothetical scale
 
 ⸻
 
 10. Testability Is Required
 
 AI-generated code MUST be test-friendly:
-	•	Prefer pure functions
-	•	Minimize side effects
-	•	Use dependency injection when applicable
-	•	Avoid tight coupling to globals or frameworks
+• Prefer pure functions
+• Minimize side effects
+• Use dependency injection when applicable
+• Avoid tight coupling to globals or frameworks
 
 If code cannot be tested, it is considered flawed.
 
@@ -545,23 +553,23 @@ If code cannot be tested, it is considered flawed.
 11. Comments Must Explain Why, Not What
 
 Comments MUST:
-	•	Explain intent
-	•	Clarify trade-offs
-	•	Document assumptions
+• Explain intent
+• Clarify trade-offs
+• Document assumptions
 
 Comments MUST NOT:
-	•	Explain obvious syntax
-	•	Restate code behavior
+• Explain obvious syntax
+• Restate code behavior
 
 ⸻
 
 12. Explicit Assumptions & Constraints
 
 AI MUST clearly state:
-	•	Assumptions about inputs
-	•	Known limitations
-	•	Intentional edge cases ignored
-	•	Environment expectations
+• Assumptions about inputs
+• Known limitations
+• Intentional edge cases ignored
+• Environment expectations
 
 Unstated assumptions are unacceptable.
 
@@ -572,11 +580,11 @@ Unstated assumptions are unacceptable.
 AI MUST adapt to the stack being used.
 
 Examples:
-	•	React → declarative & component-driven
-	•	Next.js → clear server/client separation
-	•	Backend → stateless & idempotent
-	•	Functional patterns → immutability
-	•	OOP patterns → encapsulation & cohesion
+• React → declarative & component-driven
+• Next.js → clear server/client separation
+• Backend → stateless & idempotent
+• Functional patterns → immutability
+• OOP patterns → encapsulation & cohesion
 
 Do not force paradigms.
 
@@ -585,9 +593,9 @@ Do not force paradigms.
 14. No Over-Engineering
 
 AI MUST:
-	•	Solve the current problem cleanly
-	•	Keep abstractions minimal
-	•	Leave room for extension without speculative complexity
+• Solve the current problem cleanly
+• Keep abstractions minimal
+• Leave room for extension without speculative complexity
 
 Avoid building for imaginary future requirements.
 
@@ -596,11 +604,11 @@ Avoid building for imaginary future requirements.
 15. Mandatory Pre-Output Sanity Check
 
 Before finalizing output, AI MUST internally verify:
-	•	Code compiles
-	•	Imports are correct
-	•	No unused variables
-	•	Edge cases are handled
-	•	Style is consistent with the codebase
+• Code compiles
+• Imports are correct
+• No unused variables
+• Edge cases are handled
+• Style is consistent with the codebase
 
 Failure to self-check is unacceptable.
 
@@ -609,10 +617,10 @@ Failure to self-check is unacceptable.
 16. AI as a Team Member
 
 AI SHOULD:
-	•	Explain decisions briefly when helpful
-	•	Warn about trade-offs
-	•	Suggest improvements only when relevant
-	•	Respect developer intent
+• Explain decisions briefly when helpful
+• Warn about trade-offs
+• Suggest improvements only when relevant
+• Respect developer intent
 
 AI is expected to behave like a senior teammate, not an autonomous system.
 
@@ -621,9 +629,9 @@ AI is expected to behave like a senior teammate, not an autonomous system.
 17. Enforcement Clause
 
 If a request conflicts with this document:
-	•	The AI MUST prioritize this document
-	•	The AI SHOULD warn the user
-	•	The AI SHOULD propose a compliant alternative
+• The AI MUST prioritize this document
+• The AI SHOULD warn the user
+• The AI SHOULD propose a compliant alternative
 
 ⸻
 

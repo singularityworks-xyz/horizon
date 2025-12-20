@@ -4,6 +4,7 @@ import { guards, apiErrors } from '@/lib/security/guards';
 import { runtime } from '@/lib/api-runtime';
 import { UpdateWorkflowSchema, UpdateWorkflowInput } from '@/lib/workflow/validation';
 import { calculateWorkflowDuration, computeWorkflowTimeline } from '@/lib/workflow/compute';
+import { createWorkflowSnapshot } from '@/lib/workflow-snapshots/create';
 
 // GET /api/workflows/[workflowId] - Fetch workflow with computed fields
 export const GET = guards.adminOnly(async (request, context) => {
@@ -102,7 +103,68 @@ export const PATCH = guards.adminOnly(async (request, context) => {
     const body = await request.json();
     const validatedData = UpdateWorkflowSchema.parse(body) as UpdateWorkflowInput;
 
-    // Update workflow and track edit
+    // If status is being changed to ACTIVE, validate eligibility first
+    if (validatedData.status === 'ACTIVE') {
+      const currentWorkflow = await prisma.workflow.findFirst({
+        where: {
+          id: workflowId,
+          tenantId: context.tenantId,
+        },
+        select: {
+          status: true,
+          aiApprovedAt: true,
+          source: true,
+        },
+      });
+
+      if (!currentWorkflow) {
+        return apiErrors.forbidden('Workflow not found or access denied');
+      }
+
+      // AI workflows must be approved before becoming ACTIVE
+      if (currentWorkflow.source === 'AI_GENERATED' && !currentWorkflow.aiApprovedAt) {
+        return apiErrors.badRequest('AI workflows must be approved before becoming active');
+      }
+
+      // Use transaction to atomically update status and create snapshot
+      const result = await prisma.$transaction(async (tx) => {
+        // Update workflow status
+        const updatedWorkflow = await tx.workflow.update({
+          where: { id: workflowId },
+          data: {
+            ...validatedData,
+            isManuallyEdited: true,
+            lastEditedById: context.userId,
+            lastEditedAt: new Date(),
+          },
+          include: {
+            project: { select: { id: true, name: true } },
+            _count: { select: { phases: true } },
+          },
+        });
+
+        // Create snapshot for client visibility
+        const snapshotResult = await createWorkflowSnapshot(workflowId, context.userId);
+
+        if (snapshotResult.error) {
+          throw new Error(`Failed to create snapshot: ${snapshotResult.error}`);
+        }
+
+        return {
+          workflow: updatedWorkflow,
+          snapshotId: snapshotResult.snapshotId,
+          existed: snapshotResult.existed,
+        };
+      });
+
+      return NextResponse.json({
+        workflow: result.workflow,
+        snapshotId: result.snapshotId,
+        existed: result.existed,
+      });
+    }
+
+    // Regular update (not status change to ACTIVE)
     const workflow = await prisma.workflow.update({
       where: {
         id: workflowId,
@@ -190,5 +252,92 @@ export const DELETE = guards.adminOnly(async (request, context) => {
     }
 
     return apiErrors.internalError('Failed to archive workflow');
+  }
+});
+
+// POST /api/workflows/[workflowId]/publish - Publish workflow (make ACTIVE + create snapshot)
+export const POST = guards.adminOnly(async (request, context) => {
+  try {
+    const { params } = request as any; // Next.js params handling
+    const workflowId = params.workflowId;
+
+    if (!workflowId) {
+      return apiErrors.badRequest('Workflow ID is required');
+    }
+
+    // Get workflow status to check if it's eligible for publishing
+    const workflow = await prisma.workflow.findFirst({
+      where: {
+        id: workflowId,
+        tenantId: context.tenantId,
+      },
+      select: {
+        status: true,
+        aiApprovedAt: true,
+        source: true,
+      },
+    });
+
+    if (!workflow) {
+      return apiErrors.forbidden('Workflow not found or access denied');
+    }
+
+    // Validate publishing eligibility
+    if (workflow.status === 'ARCHIVED') {
+      return apiErrors.badRequest('Cannot publish archived workflow');
+    }
+
+    if (workflow.status === 'COMPLETED') {
+      return apiErrors.badRequest('Cannot publish completed workflow');
+    }
+
+    // AI workflows must be approved before publishing
+    if (workflow.source === 'AI_GENERATED' && !workflow.aiApprovedAt) {
+      return apiErrors.badRequest('AI workflows must be approved before publishing');
+    }
+
+    // Use transaction to atomically update status and create snapshot
+    const result = await prisma.$transaction(async (tx) => {
+      // Update workflow status to ACTIVE
+      const updatedWorkflow = await tx.workflow.update({
+        where: { id: workflowId },
+        data: {
+          status: 'ACTIVE',
+          isManuallyEdited: true,
+          lastEditedById: context.userId,
+          lastEditedAt: new Date(),
+        },
+        include: {
+          project: { select: { id: true, name: true } },
+        },
+      });
+
+      // Create snapshot for client visibility
+      const snapshotResult = await createWorkflowSnapshot(workflowId, context.userId);
+
+      if (snapshotResult.error) {
+        throw new Error(`Failed to create snapshot: ${snapshotResult.error}`);
+      }
+
+      return {
+        workflow: updatedWorkflow,
+        snapshotId: snapshotResult.snapshotId,
+        existed: snapshotResult.existed,
+      };
+    });
+
+    return NextResponse.json({
+      workflow: result.workflow,
+      snapshotId: result.snapshotId,
+      existed: result.existed,
+    });
+  } catch (error) {
+    console.error('Failed to publish workflow:', error);
+
+    if (error instanceof Error && error.message.includes('Failed to create snapshot')) {
+      return apiErrors.badRequest(error.message);
+    }
+
+    return apiErrors.internalError('Failed to publish workflow');
   }
 });

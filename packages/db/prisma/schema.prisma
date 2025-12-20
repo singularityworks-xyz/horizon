@@ -119,6 +119,7 @@ model Tenant {
   answers                  Answer[]
   aiRateLimits             AiRateLimit[]
   aiWorkflowGenerations    AiWorkflowGeneration[]
+  snapshots                WorkflowSnapshot[]
 
   @@map("tenants")
 }
@@ -178,6 +179,7 @@ model User {
   editedPhases      Phase[]    @relation("PhaseEditedBy") // Phases edited by this user
   editedTasks       Task[]     @relation("TaskEditedBy") // Tasks edited by this user
   approvedWorkflows Workflow[] @relation("WorkflowApprovedBy") // Workflows approved by this user
+  createdSnapshots  WorkflowSnapshot[] // Snapshots created by this user
 
   @@unique([tenantId, email])
   @@map("users")
@@ -221,6 +223,7 @@ model Project {
   assets                   Asset[]
   workflows                Workflow[]
   aiWorkflowGenerations    AiWorkflowGeneration[]
+  snapshots                WorkflowSnapshot[]
 
   @@unique([tenantId, name])
   @@map("projects")
@@ -401,6 +404,7 @@ model Workflow {
   lastEditedBy          User?                  @relation(fields: [lastEditedById], references: [id], onDelete: SetNull, name: "WorkflowEditedBy")
   aiApprovedBy          User?                  @relation(fields: [aiApprovedById], references: [id], onDelete: SetNull, name: "WorkflowApprovedBy")
   aiWorkflowGenerations AiWorkflowGeneration[]
+  snapshots             WorkflowSnapshot[]
 
   @@unique([tenantId, projectId]) // One workflow per project for now
   @@map("workflows")
@@ -529,4 +533,90 @@ model Progress {
   updatedAt  DateTime       @updatedAt
 
   @@map("progress")
+}
+
+// Workflow snapshots for client-visible, immutable workflow representations
+model WorkflowSnapshot {
+  id               String   @id @default(cuid())
+  tenantId         String
+  projectId        String
+  workflowId       String
+  version          Int      @default(1) // Increment on new snapshots
+  isCurrent        Boolean  @default(true) // Only one current snapshot per tenant+project
+
+  // Frozen computed state
+  dependencies     Json? // Task dependencies as computed graph
+  timeline         Json? // Computed timeline from computeWorkflowTimeline
+
+  // Metadata
+  createdAt        DateTime @default(now())
+  createdById      String // Admin who created this snapshot
+
+  // Relations
+  tenant           Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project          Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workflow         Workflow                 @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  createdBy        User                     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  phases           WorkflowSnapshotPhase[]
+  progress         WorkflowSnapshotProgress?
+
+  // Constraints
+  @@unique([tenantId, projectId, isCurrent], name: "unique_current_snapshot")
+  @@index([tenantId, projectId])
+  @@map("workflow_snapshots")
+}
+
+model WorkflowSnapshotPhase {
+  id               String   @id @default(cuid())
+  snapshotId       String
+  sourcePhaseId    String   // Original phase ID for mapping
+
+  name             String
+  intent           PhaseIntent @default(CUSTOM)
+  description      String?
+  order            Int
+
+  createdAt        DateTime @default(now())
+
+  // Relations
+  snapshot         WorkflowSnapshot         @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  tasks            WorkflowSnapshotTask[]
+
+  @@map("workflow_snapshot_phases")
+}
+
+model WorkflowSnapshotTask {
+  id               String   @id @default(cuid())
+  snapshotPhaseId  String
+  sourceTaskId     String   // Original task ID for mapping
+
+  title            String
+  description      String?
+  order            Int
+  priority         Priority @default(MEDIUM)
+  estimatedDurationDays Int?
+  isMilestone      Boolean @default(false)
+
+  createdAt        DateTime @default(now())
+
+  // Relations
+  snapshotPhase    WorkflowSnapshotPhase    @relation(fields: [snapshotPhaseId], references: [id], onDelete: Cascade)
+
+  @@map("workflow_snapshot_tasks")
+}
+
+model WorkflowSnapshotProgress {
+  id               String   @id @default(cuid())
+  snapshotId       String   @unique
+
+  totalTasks       Int      @default(0)
+  completedTasks   Int      @default(0)
+  perPhase         Json?    // { phaseOrderOrId: { total: N, completed: M, percentage: P } }
+
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  snapshot         WorkflowSnapshot         @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@map("workflow_snapshot_progress")
 }
