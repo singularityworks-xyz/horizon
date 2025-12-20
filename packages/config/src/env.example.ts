@@ -17,6 +17,10 @@ export const ENV_EXAMPLE = {
   WORKOS_API_KEY: '...',
   WORKOS_CLIENT_ID: '...',
 
+  // AI Providers (Optional - for Phase 3 AI Integration)
+  OPENROUTER_API_KEY: 'sk-or-v1-...',
+  GEMINI_API_KEY: 'AIza...',
+
   // File Storage (Optional - will be added in later phases)
   CLOUDFLARE_R2_ACCESS_KEY_ID: '...',
   CLOUDFLARE_R2_SECRET_ACCESS_KEY: '...',
