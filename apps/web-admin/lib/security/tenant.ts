@@ -29,33 +29,49 @@ export async function validateTenantAccess(
   tenantId: string
 ): Promise<TenantAccess> {
   try {
-    // For now, we'll use a simplified approach
-    // TODO: Replace with real user-tenant-role mapping from database
-    // This is a placeholder until we implement proper user management
-
-    // Check if tenant exists
-    const tenant = await prisma.tenants.findUnique({
-      where: { id: tenantId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
+    // Query the users table to verify this user belongs to this tenant
+    // The users table links user → tenant → role
+    const userWithTenant = await prisma.users.findFirst({
+      where: {
+        id: userId,
+        tenantId: tenantId,
+      },
+      include: {
+        tenants: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        roles: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
-    if (!tenant) {
-      throw new TenantValidationError(`Tenant ${tenantId} not found`, 'TENANT_NOT_FOUND');
+    // If no record found, user does not have access to this tenant
+    if (!userWithTenant || !userWithTenant.tenants) {
+      throw new TenantValidationError(`User does not have access to tenant`, 'NO_ACCESS');
     }
 
-    // TODO: Check if user belongs to this tenant
-    // For now, we'll allow any authenticated user access to any tenant
-    // This will be replaced with proper user-tenant-role validation
+    // Determine role from the roles table (default to 'client' if role not found)
+    const role = (userWithTenant.roles?.name === 'admin' ? 'admin' : 'client') as
+      | 'admin'
+      | 'client';
 
     return {
-      tenantId,
+      tenantId: userWithTenant.tenants.id,
       userId,
-      role: 'admin', // Default to admin for now
-      tenant,
+      role,
+      tenant: {
+        id: userWithTenant.tenants.id,
+        name: userWithTenant.tenants.name,
+        slug: userWithTenant.tenants.slug,
+      },
     };
   } catch (error) {
     if (error instanceof TenantValidationError) {

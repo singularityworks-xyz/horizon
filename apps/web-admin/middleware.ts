@@ -69,25 +69,20 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/signin', request.url));
     }
 
-    // For authenticated users, add tenant context headers
-    // NOTE: These headers are for propagation only - authorization decisions
-    // must re-validate from session/DB, never trust headers as source of truth
+    // For authenticated users, add user info to headers
+    // NOTE: Tenant context validation happens in API routes using validateTenantAccess()
+    // Middleware only provides session info - authorization is done server-side with DB lookup
     if (session) {
-      // TODO: Replace with real tenant lookup from database
-      // This is placeholder until tenant validation helpers are implemented
-      const tenantContext = {
-        tenantId: 'default-tenant-id', // Will be replaced with real lookup
-        userId: session.user.id,
-        role: 'admin', // Will be replaced with role lookup from DB
-      };
-
-      // Add tenant context to request headers for downstream use
-      // These are NOT trusted for authorization - only for convenience
       const response = NextResponse.next();
-      response.headers.set('x-tenant-id', tenantContext.tenantId);
-      response.headers.set('x-user-id', tenantContext.userId);
-      response.headers.set('x-user-role', tenantContext.role);
+
+      // Only set user ID from session - tenant/role validation happens in API routes
+      // This prevents hardcoded values and ensures DB validation
+      response.headers.set('x-user-id', session.user.id);
       response.headers.set('x-session-id', session.session.id);
+
+      // Note: x-tenant-id and x-user-role are NOT set here
+      // API routes must call validateTenantAccess() or validateUserHasTenantAccess()
+      // to get the actual tenant context from the database
 
       // Add CORS headers
       const headers = getCorsHeaders(request);
