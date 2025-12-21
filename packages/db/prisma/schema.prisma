@@ -1,6 +1,3 @@
-// Prisma schema for Horizon
-// All models are tenant-scoped for multi-tenancy isolation
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,13 +6,465 @@ datasource db {
   provider = "postgresql"
 }
 
-// Enums (must be defined before any models that reference them)
-enum ProjectStatus {
-  DRAFT
-  ACTIVE
-  ON_HOLD
-  COMPLETED
-  CANCELLED
+model account {
+  id           String    @id
+  accountId    String
+  providerId   String
+  userId       String
+  accessToken  String?
+  refreshToken String?
+  idToken      String?
+  expiresAt    DateTime?
+  password     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+  user         user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ai_rate_limits {
+  id          String   @id
+  tenantId    String
+  scope       String
+  window      String
+  windowStart DateTime
+  count       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  tenants     tenants  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, scope, window, windowStart])
+}
+
+model ai_workflow_generations {
+  id                        String                    @id
+  tenantId                  String
+  submissionId              String
+  projectId                 String
+  status                    String
+  workflowId                String?
+  provider                  String?
+  promptId                  String?
+  promptVersion             String?
+  requestId                 String?
+  errorCode                 String?
+  errorMessage              String?
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime
+  projects                  projects                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  questionnaire_submissions questionnaire_submissions @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  tenants                   tenants                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workflows                 workflows?                @relation(fields: [workflowId], references: [id])
+
+  @@unique([tenantId, submissionId])
+}
+
+model answers {
+  id                        String                    @id
+  tenantId                  String
+  submissionId              String
+  questionId                String
+  projectId                 String?
+  value                     Json
+  submittedAt               DateTime?
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime
+  projects                  projects?                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  questions                 questions                 @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionnaire_submissions questionnaire_submissions @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  tenants                   tenants                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assets                    assets[]
+
+  @@unique([submissionId, questionId])
+}
+
+model asset_versions {
+  id         String   @id
+  assetId    String
+  version    Int
+  checksum   String
+  size       Int
+  storageKey String
+  changeLog  String?
+  createdAt  DateTime @default(now())
+  assets     assets   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, version])
+}
+
+model assets {
+  id             String           @id
+  tenantId       String
+  projectId      String?
+  questionId     String?
+  answerId       String?
+  workflowId     String?
+  phaseId        String?
+  taskId         String?
+  uploaderId     String
+  name           String
+  fileName       String
+  mimeType       String
+  size           Int
+  checksum       String
+  storageKey     String
+  accessLevel    AssetAccessLevel @default(TENANT)
+  url            String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime
+  asset_versions asset_versions[]
+  answers        answers?         @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  phases         phases?          @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  projects       projects?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  questions      questions?       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  tasks          tasks?           @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tenants        tenants          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users          users            @relation(fields: [uploaderId], references: [id])
+  workflows      workflows?       @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+model clients {
+  id        String     @id
+  tenantId  String
+  name      String
+  email     String?
+  phone     String?
+  company   String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime
+  tenants   tenants    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  projects  projects[]
+}
+
+model phases {
+  id               String         @id
+  workflowId       String
+  name             String
+  intent           PhaseIntent    @default(CUSTOM)
+  description      String?
+  order            Int
+  status           PhaseStatus    @default(PENDING)
+  startDate        DateTime?
+  endDate          DateTime?
+  source           WorkflowSource @default(MANUAL)
+  isManuallyEdited Boolean        @default(false)
+  lastEditedById   String?
+  lastEditedAt     DateTime?
+  metadata         Json?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime
+  assets           assets[]
+  users            users?         @relation(fields: [lastEditedById], references: [id])
+  workflows        workflows      @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  tasks            tasks[]
+}
+
+model progress {
+  id         String         @id
+  entityType ProgressEntity
+  entityId   String
+  status     ProgressStatus @default(NOT_STARTED)
+  percentage Float          @default(0)
+  snapshotAt DateTime       @default(now())
+  metadata   Json?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime
+}
+
+model projects {
+  id                        String                      @id
+  tenantId                  String
+  clientId                  String?
+  name                      String
+  description               String?
+  status                    ProjectStatus               @default(DRAFT)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  ai_workflow_generations   ai_workflow_generations[]
+  answers                   answers[]
+  assets                    assets[]
+  clients                   clients?                    @relation(fields: [clientId], references: [id])
+  tenants                   tenants                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  questionnaire_submissions questionnaire_submissions[]
+  questionnaire_templates   questionnaire_templates[]
+  workflow_snapshots        workflow_snapshots[]
+  workflows                 workflows[]
+
+  @@unique([tenantId, name])
+}
+
+model questionnaire_submissions {
+  id                      String                    @id
+  tenantId                String
+  projectId               String?
+  templateId              String
+  status                  SubmissionStatus          @default(DRAFT)
+  submittedAt             DateTime?
+  lockedAt                DateTime?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime
+  ai_workflow_generations ai_workflow_generations[]
+  answers                 answers[]
+  projects                projects?                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  questionnaire_templates questionnaire_templates   @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  tenants                 tenants                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, projectId, templateId])
+}
+
+model questionnaire_templates {
+  id                        String                      @id
+  tenantId                  String
+  projectId                 String?
+  name                      String
+  description               String?
+  version                   Int                         @default(1)
+  isActive                  Boolean                     @default(true)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  questionnaire_submissions questionnaire_submissions[]
+  projects                  projects?                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tenants                   tenants                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  questions                 questions[]
+
+  @@unique([tenantId, name, version])
+}
+
+model questions {
+  id                      String                  @id
+  templateId              String
+  type                    QuestionType
+  title                   String
+  description             String?
+  config                  Json?
+  order                   Int
+  required                Boolean                 @default(false)
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime
+  answers                 answers[]
+  assets                  assets[]
+  questionnaire_templates questionnaire_templates @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, order])
+}
+
+model roles {
+  id        String   @id
+  tenantId  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  tenants   tenants  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users     users[]
+
+  @@unique([tenantId, name])
+}
+
+model session {
+  id        String   @id
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  token     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model task_dependencies {
+  id                                        String @id
+  fromTaskId                                String
+  toTaskId                                  String
+  tasks_task_dependencies_fromTaskIdTotasks tasks  @relation("task_dependencies_fromTaskIdTotasks", fields: [fromTaskId], references: [id], onDelete: Cascade)
+  tasks_task_dependencies_toTaskIdTotasks   tasks  @relation("task_dependencies_toTaskIdTotasks", fields: [toTaskId], references: [id], onDelete: Cascade)
+
+  @@unique([fromTaskId, toTaskId])
+  @@index([toTaskId])
+}
+
+model tasks {
+  id                                                    String              @id
+  phaseId                                               String
+  title                                                 String
+  description                                           String?
+  order                                                 Int
+  status                                                TaskStatus          @default(PENDING)
+  priority                                              Priority            @default(MEDIUM)
+  assigneeId                                            String?
+  dueDate                                               DateTime?
+  completedAt                                           DateTime?
+  estimatedDurationDays                                 Int?
+  isMilestone                                           Boolean             @default(false)
+  source                                                WorkflowSource      @default(MANUAL)
+  isManuallyEdited                                      Boolean             @default(false)
+  lastEditedById                                        String?
+  lastEditedAt                                          DateTime?
+  metadata                                              Json?
+  createdAt                                             DateTime            @default(now())
+  updatedAt                                             DateTime
+  assets                                                assets[]
+  task_dependencies_task_dependencies_fromTaskIdTotasks task_dependencies[] @relation("task_dependencies_fromTaskIdTotasks")
+  task_dependencies_task_dependencies_toTaskIdTotasks   task_dependencies[] @relation("task_dependencies_toTaskIdTotasks")
+  users_tasks_assigneeIdTousers                         users?              @relation("tasks_assigneeIdTousers", fields: [assigneeId], references: [id])
+  users_tasks_lastEditedByIdTousers                     users?              @relation("tasks_lastEditedByIdTousers", fields: [lastEditedById], references: [id])
+  phases                                                phases              @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+}
+
+model tenants {
+  id                        String                      @id
+  name                      String
+  slug                      String                      @unique
+  metadata                  Json?
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  ai_rate_limits            ai_rate_limits[]
+  ai_workflow_generations   ai_workflow_generations[]
+  answers                   answers[]
+  assets                    assets[]
+  clients                   clients[]
+  projects                  projects[]
+  questionnaire_submissions questionnaire_submissions[]
+  questionnaire_templates   questionnaire_templates[]
+  roles                     roles[]
+  users                     users[]
+  workflow_snapshots        workflow_snapshots[]
+  workflows                 workflows[]
+}
+
+model user {
+  id            String    @id
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  name          String
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  account       account[]
+  session       session[]
+}
+
+model users {
+  id                                        String               @id
+  tenantId                                  String?
+  roleId                                    String?
+  email                                     String
+  firstName                                 String?
+  lastName                                  String?
+  avatarUrl                                 String?
+  createdAt                                 DateTime             @default(now())
+  updatedAt                                 DateTime
+  assets                                    assets[]
+  phases                                    phases[]
+  tasks_tasks_assigneeIdTousers             tasks[]              @relation("tasks_assigneeIdTousers")
+  tasks_tasks_lastEditedByIdTousers         tasks[]              @relation("tasks_lastEditedByIdTousers")
+  roles                                     roles?               @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  tenants                                   tenants?             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workflow_snapshots                        workflow_snapshots[]
+  workflows_workflows_aiApprovedByIdTousers workflows[]          @relation("workflows_aiApprovedByIdTousers")
+  workflows_workflows_lastEditedByIdTousers workflows[]          @relation("workflows_lastEditedByIdTousers")
+
+  @@unique([tenantId, email])
+}
+
+model verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  @@unique([identifier, value])
+}
+
+model workflow_snapshot_phases {
+  id                      String                    @id
+  snapshotId              String
+  sourcePhaseId           String
+  name                    String
+  intent                  PhaseIntent               @default(CUSTOM)
+  description             String?
+  order                   Int
+  createdAt               DateTime                  @default(now())
+  workflow_snapshots      workflow_snapshots        @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  workflow_snapshot_tasks workflow_snapshot_tasks[]
+}
+
+model workflow_snapshot_progress {
+  id                 String             @id
+  snapshotId         String             @unique
+  totalTasks         Int                @default(0)
+  completedTasks     Int                @default(0)
+  perPhase           Json?
+  updatedAt          DateTime
+  workflow_snapshots workflow_snapshots @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+}
+
+model workflow_snapshot_tasks {
+  id                       String                   @id
+  snapshotPhaseId          String
+  sourceTaskId             String
+  title                    String
+  description              String?
+  order                    Int
+  priority                 Priority                 @default(MEDIUM)
+  estimatedDurationDays    Int?
+  isMilestone              Boolean                  @default(false)
+  createdAt                DateTime                 @default(now())
+  workflow_snapshot_phases workflow_snapshot_phases @relation(fields: [snapshotPhaseId], references: [id], onDelete: Cascade)
+}
+
+model workflow_snapshots {
+  id                         String                      @id
+  tenantId                   String
+  projectId                  String
+  workflowId                 String
+  version                    Int                         @default(1)
+  isCurrent                  Boolean                     @default(true)
+  dependencies               Json?
+  timeline                   Json?
+  createdAt                  DateTime                    @default(now())
+  createdById                String
+  workflow_snapshot_phases   workflow_snapshot_phases[]
+  workflow_snapshot_progress workflow_snapshot_progress?
+  users                      users                       @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  projects                   projects                    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tenants                    tenants                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workflows                  workflows                   @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, projectId, isCurrent])
+  @@index([tenantId, projectId])
+}
+
+model workflows {
+  id                                    String                    @id
+  tenantId                              String
+  projectId                             String
+  name                                  String
+  description                           String?
+  source                                WorkflowSource            @default(MANUAL)
+  status                                WorkflowStatus            @default(DRAFT)
+  isManuallyEdited                      Boolean                   @default(false)
+  lastEditedById                        String?
+  lastEditedAt                          DateTime?
+  createdAt                             DateTime                  @default(now())
+  updatedAt                             DateTime
+  aiApprovalNotes                       String?
+  aiApprovedAt                          DateTime?
+  aiApprovedById                        String?
+  aiGeneratedFromSubmissionId           String?
+  ai_workflow_generations               ai_workflow_generations[]
+  assets                                assets[]
+  phases                                phases[]
+  workflow_snapshots                    workflow_snapshots[]
+  users_workflows_aiApprovedByIdTousers users?                    @relation("workflows_aiApprovedByIdTousers", fields: [aiApprovedById], references: [id])
+  users_workflows_lastEditedByIdTousers users?                    @relation("workflows_lastEditedByIdTousers", fields: [lastEditedById], references: [id])
+  projects                              projects                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tenants                               tenants                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, projectId])
 }
 
 enum AssetAccessLevel {
@@ -24,33 +473,14 @@ enum AssetAccessLevel {
   PUBLIC
 }
 
-enum QuestionType {
-  TEXT
-  TEXTAREA
-  SELECT
-  MULTI_SELECT
-  FILE_UPLOAD
-  URL
-  DATE
-  NUMBER
-}
-
-enum SubmissionStatus {
-  DRAFT
-  SUBMITTED
-  LOCKED
-}
-
-enum WorkflowSource {
-  MANUAL
-  AI_GENERATED
-}
-
-enum WorkflowStatus {
-  DRAFT
-  ACTIVE
-  COMPLETED
-  ARCHIVED
+enum PhaseIntent {
+  DISCOVERY
+  DESIGN
+  BUILD
+  TEST
+  DEPLOY
+  MAINTENANCE
+  CUSTOM
 }
 
 enum PhaseStatus {
@@ -58,14 +488,6 @@ enum PhaseStatus {
   IN_PROGRESS
   COMPLETED
   BLOCKED
-}
-
-enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  BLOCKED
-  CANCELLED
 }
 
 enum Priority {
@@ -88,535 +510,47 @@ enum ProgressStatus {
   BLOCKED
 }
 
-enum PhaseIntent {
-  DISCOVERY
-  DESIGN
-  BUILD
-  TEST
-  DEPLOY
-  MAINTENANCE
-  CUSTOM
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
 }
 
-// Core tenant model - represents agencies/organizations
-model Tenant {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  metadata  Json? // Additional tenant-specific configuration
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  users                    User[]
-  roles                    Role[]
-  clients                  Client[]
-  projects                 Project[]
-  questionnaireTemplates   QuestionnaireTemplate[]
-  questionnaireSubmissions QuestionnaireSubmission[]
-  assets                   Asset[]
-  workflows                Workflow[]
-  answers                  Answer[]
-  aiRateLimits             AiRateLimit[]
-  aiWorkflowGenerations    AiWorkflowGeneration[]
-  snapshots                WorkflowSnapshot[]
-
-  @@map("tenants")
+enum QuestionType {
+  TEXT
+  TEXTAREA
+  SELECT
+  MULTI_SELECT
+  FILE_UPLOAD
+  URL
+  DATE
+  NUMBER
 }
 
-// AI Rate Limiting - tracks per-tenant usage by scope and time window
-model AiRateLimit {
-  id          String   @id @default(cuid())
-  tenantId    String
-  scope       String // e.g., "ai.any", "ai.workflow.generate"
-  window      String // "minute", "day", "hour"
-  windowStart DateTime // Start of the time window
-  count       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@unique([tenantId, scope, window, windowStart])
-  @@map("ai_rate_limits")
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  LOCKED
 }
 
-// User roles within a tenant
-model Role {
-  id        String   @id @default(cuid())
-  tenantId  String
-  name      String // e.g., "admin", "client", "internal"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  users  User[]
-
-  @@unique([tenantId, name])
-  @@map("roles")
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+  CANCELLED
 }
 
-// Users within a tenant
-model User {
-  id        String   @id @default(cuid())
-  tenantId  String
-  roleId    String
-  email     String
-  firstName String?
-  lastName  String?
-  avatarUrl String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  tenant            Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  role              Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  tasks             Task[] // Tasks assigned to this user
-  uploadedAssets    Asset[] // Assets uploaded by this user
-  editedWorkflows   Workflow[] @relation("WorkflowEditedBy") // Workflows edited by this user
-  editedPhases      Phase[]    @relation("PhaseEditedBy") // Phases edited by this user
-  editedTasks       Task[]     @relation("TaskEditedBy") // Tasks edited by this user
-  approvedWorkflows Workflow[] @relation("WorkflowApprovedBy") // Workflows approved by this user
-  createdSnapshots  WorkflowSnapshot[] // Snapshots created by this user
-
-  @@unique([tenantId, email])
-  @@map("users")
+enum WorkflowSource {
+  MANUAL
+  AI_GENERATED
 }
 
-// Client entities within a tenant
-model Client {
-  id        String   @id @default(cuid())
-  tenantId  String
-  name      String
-  email     String?
-  phone     String?
-  company   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  projects Project[]
-
-  @@map("clients")
-}
-
-// Projects within a tenant
-model Project {
-  id          String        @id @default(cuid())
-  tenantId    String
-  clientId    String?
-  name        String
-  description String?
-  status      ProjectStatus @default(DRAFT)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Relations
-  tenant                   Tenant                    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  client                   Client?                   @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  questionnaireTemplates   QuestionnaireTemplate[]
-  questionnaireSubmissions QuestionnaireSubmission[]
-  answers                  Answer[]
-  assets                   Asset[]
-  workflows                Workflow[]
-  aiWorkflowGenerations    AiWorkflowGeneration[]
-  snapshots                WorkflowSnapshot[]
-
-  @@unique([tenantId, name])
-  @@map("projects")
-}
-
-// Questionnaire templates within a tenant
-model QuestionnaireTemplate {
-  id          String   @id @default(cuid())
-  tenantId    String
-  projectId   String?
-  name        String
-  description String?
-  version     Int      @default(1)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  tenant      Tenant                    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  project     Project?                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  questions   Question[]
-  submissions QuestionnaireSubmission[]
-
-  @@unique([tenantId, name, version])
-  @@map("questionnaire_templates")
-}
-
-// Questionnaire submissions within a tenant
-model QuestionnaireSubmission {
-  id          String           @id @default(cuid())
-  tenantId    String
-  projectId   String?
-  templateId  String
-  status      SubmissionStatus @default(DRAFT)
-  submittedAt DateTime?
-  lockedAt    DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  // Relations
-  tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  project               Project?               @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  template              QuestionnaireTemplate  @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  answers               Answer[]
-  aiWorkflowGenerations AiWorkflowGeneration[]
-
-  @@unique([tenantId, projectId, templateId]) // One submission per project-template combination
-  @@map("questionnaire_submissions")
-}
-
-// Questions within a questionnaire template
-model Question {
-  id          String       @id @default(cuid())
-  templateId  String
-  type        QuestionType
-  title       String
-  description String?
-  config      Json? // Type-specific configuration (options, validation rules, conditions, file constraints, etc.)
-  order       Int
-  required    Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  // Relations
-  template QuestionnaireTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  answers  Answer[]
-  assets   Asset[]
-
-  @@unique([templateId, order]) // Ensure unique ordering per template
-  @@map("questions")
-}
-
-// Answers to questions within a tenant
-model Answer {
-  id           String    @id @default(cuid())
-  tenantId     String
-  submissionId String
-  questionId   String
-  projectId    String?
-  value        Json // Flexible value storage (string, number, array, object)
-  submittedAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  // Relations
-  tenant     Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  submission QuestionnaireSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  question   Question                @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  project    Project?                @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  assets Asset[]
-
-  @@unique([submissionId, questionId]) // One answer per question per submission
-  @@map("answers")
-}
-
-// Assets (files/documents) within a tenant
-model Asset {
-  id          String           @id @default(cuid())
-  tenantId    String
-  projectId   String?
-  questionId  String?
-  answerId    String?
-  workflowId  String?
-  phaseId     String?
-  taskId      String?
-  uploaderId  String
-  name        String
-  fileName    String
-  mimeType    String
-  size        Int
-  checksum    String // SHA-256 hash for integrity
-  storageKey  String // Cloud storage key/path
-  accessLevel AssetAccessLevel @default(TENANT)
-  url         String? // Public URL if applicable
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  // Relations
-  tenant   Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  project  Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  question Question?      @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answer   Answer?        @relation(fields: [answerId], references: [id], onDelete: Cascade)
-  workflow Workflow?      @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  phase    Phase?         @relation(fields: [phaseId], references: [id], onDelete: Cascade)
-  task     Task?          @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  uploader User           @relation(fields: [uploaderId], references: [id], onDelete: Restrict)
-  versions AssetVersion[]
-
-  @@map("assets")
-}
-
-// Asset versions for tracking changes
-model AssetVersion {
-  id         String   @id @default(cuid())
-  assetId    String
-  version    Int
-  checksum   String // SHA-256 hash for integrity
-  size       Int
-  storageKey String // Cloud storage key/path
-  changeLog  String?
-  createdAt  DateTime @default(now())
-
-  // Relations
-  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
-
-  @@unique([assetId, version])
-  @@map("asset_versions")
-}
-
-// Workflows within a tenant
-model Workflow {
-  id               String         @id @default(cuid())
-  tenantId         String
-  projectId        String
-  name             String
-  description      String?
-  source           WorkflowSource @default(MANUAL) // MANUAL or AI_GENERATED
-  status           WorkflowStatus @default(DRAFT)
-  isManuallyEdited Boolean        @default(false) // True if manually edited after creation
-  lastEditedById   String? // User who last manually edited this workflow
-  lastEditedAt     DateTime? // When this workflow was last manually edited
-
-  // AI approval fields
-  aiGeneratedFromSubmissionId String? // Links to the questionnaire submission that generated this workflow
-  aiApprovedAt                DateTime? // When admin approved this AI-generated workflow for client visibility
-  aiApprovedById              String? // Admin who approved this workflow
-  aiApprovalNotes             String? // Optional notes from the approver
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  project               Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  phases                Phase[]
-  assets                Asset[]
-  lastEditedBy          User?                  @relation(fields: [lastEditedById], references: [id], onDelete: SetNull, name: "WorkflowEditedBy")
-  aiApprovedBy          User?                  @relation(fields: [aiApprovedById], references: [id], onDelete: SetNull, name: "WorkflowApprovedBy")
-  aiWorkflowGenerations AiWorkflowGeneration[]
-  snapshots             WorkflowSnapshot[]
-
-  @@unique([tenantId, projectId]) // One workflow per project for now
-  @@map("workflows")
-}
-
-// AI Workflow Generation Audit - tracks AI generation attempts and outcomes
-model AiWorkflowGeneration {
-  id           String @id @default(cuid())
-  tenantId     String
-  submissionId String // Questionnaire submission that triggered generation
-  projectId    String // Project associated with the submission
-
-  // Status and outcome
-  status     String // PENDING | SUCCEEDED | FAILED
-  workflowId String? // Set only on SUCCEEDED
-
-  // AI execution details for diagnostics
-  provider      String?
-  promptId      String?
-  promptVersion String?
-  requestId     String? // AI request ID for tracing
-
-  // Error details (for FAILED status)
-  errorCode    String?
-  errorMessage String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  tenant     Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  submission QuestionnaireSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  project    Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  workflow   Workflow?               @relation(fields: [workflowId], references: [id], onDelete: SetNull)
-
-  @@unique([tenantId, submissionId]) // One generation attempt per submission
-  @@map("ai_workflow_generations")
-}
-
-// Phases within a workflow
-model Phase {
-  id               String         @id @default(cuid())
-  workflowId       String
-  name             String
-  intent           PhaseIntent    @default(CUSTOM) // Canonical phase type for AI/system use
-  description      String?
-  order            Int
-  status           PhaseStatus    @default(PENDING)
-  startDate        DateTime?
-  endDate          DateTime?
-  source           WorkflowSource @default(MANUAL) // MANUAL or AI_GENERATED
-  isManuallyEdited Boolean        @default(false) // True if manually edited after creation
-  lastEditedById   String? // User who last manually edited this phase
-  lastEditedAt     DateTime? // When this phase was last manually edited
-  metadata         Json? // Additional phase-specific data
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-
-  // Relations
-  workflow     Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  tasks        Task[]
-  assets       Asset[]
-  lastEditedBy User?    @relation(fields: [lastEditedById], references: [id], onDelete: SetNull, name: "PhaseEditedBy")
-
-  @@map("phases")
-}
-
-// Tasks within a phase
-model Task {
-  id                    String         @id @default(cuid())
-  phaseId               String
-  title                 String
-  description           String?
-  order                 Int
-  status                TaskStatus     @default(PENDING)
-  priority              Priority       @default(MEDIUM)
-  assigneeId            String? // User ID who owns this task
-  dueDate               DateTime?
-  completedAt           DateTime?
-  estimatedDurationDays Int? // Estimated work duration in business days
-  isMilestone           Boolean        @default(false) // True if this task represents a milestone
-  source                WorkflowSource @default(MANUAL) // MANUAL or AI_GENERATED
-  isManuallyEdited      Boolean        @default(false) // True if manually edited after creation
-  lastEditedById        String? // User who last manually edited this task
-  lastEditedAt          DateTime? // When this task was last manually edited
-  metadata              Json? // Additional task-specific data
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
-
-  // Relations
-  phase         Phase            @relation(fields: [phaseId], references: [id], onDelete: Cascade)
-  assignee      User?            @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
-  assets        Asset[]
-  lastEditedBy  User?            @relation(fields: [lastEditedById], references: [id], onDelete: SetNull, name: "TaskEditedBy")
-  prerequisites TaskDependency[] @relation("TaskPrerequisites") // Tasks that depend on this task
-  dependencies  TaskDependency[] @relation("TaskDependencies") // Tasks this task depends on
-
-  @@map("tasks")
-}
-
-// Task dependencies (DAG relationships between tasks)
-model TaskDependency {
-  id         String @id @default(cuid())
-  fromTaskId String // Prerequisite task (must be completed before toTask)
-  toTaskId   String // Dependent task (cannot start until fromTask is complete)
-
-  // Relations
-  fromTask Task @relation(fields: [fromTaskId], references: [id], onDelete: Cascade, name: "TaskDependencies")
-  toTask   Task @relation(fields: [toTaskId], references: [id], onDelete: Cascade, name: "TaskPrerequisites")
-
-  @@unique([fromTaskId, toTaskId]) // Prevent duplicate dependencies
-  @@index([toTaskId]) // Optimize queries for dependent tasks
-  @@map("task_dependencies")
-}
-
-// Progress tracking (rollups and snapshots)
-model Progress {
-  id         String         @id @default(cuid())
-  entityType ProgressEntity // PROJECT, PHASE, or TASK
-  entityId   String // ID of the entity being tracked
-  status     ProgressStatus @default(NOT_STARTED)
-  percentage Float          @default(0) // 0-100
-  snapshotAt DateTime       @default(now())
-  metadata   Json? // Additional progress data
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-
-  @@map("progress")
-}
-
-// Workflow snapshots for client-visible, immutable workflow representations
-model WorkflowSnapshot {
-  id               String   @id @default(cuid())
-  tenantId         String
-  projectId        String
-  workflowId       String
-  version          Int      @default(1) // Increment on new snapshots
-  isCurrent        Boolean  @default(true) // Only one current snapshot per tenant+project
-
-  // Frozen computed state
-  dependencies     Json? // Task dependencies as computed graph
-  timeline         Json? // Computed timeline from computeWorkflowTimeline
-
-  // Metadata
-  createdAt        DateTime @default(now())
-  createdById      String // Admin who created this snapshot
-
-  // Relations
-  tenant           Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  project          Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  workflow         Workflow                 @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  createdBy        User                     @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  phases           WorkflowSnapshotPhase[]
-  progress         WorkflowSnapshotProgress?
-
-  // Constraints
-  @@unique([tenantId, projectId, isCurrent], name: "unique_current_snapshot")
-  @@index([tenantId, projectId])
-  @@map("workflow_snapshots")
-}
-
-model WorkflowSnapshotPhase {
-  id               String   @id @default(cuid())
-  snapshotId       String
-  sourcePhaseId    String   // Original phase ID for mapping
-
-  name             String
-  intent           PhaseIntent @default(CUSTOM)
-  description      String?
-  order            Int
-
-  createdAt        DateTime @default(now())
-
-  // Relations
-  snapshot         WorkflowSnapshot         @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
-  tasks            WorkflowSnapshotTask[]
-
-  @@map("workflow_snapshot_phases")
-}
-
-model WorkflowSnapshotTask {
-  id               String   @id @default(cuid())
-  snapshotPhaseId  String
-  sourceTaskId     String   // Original task ID for mapping
-
-  title            String
-  description      String?
-  order            Int
-  priority         Priority @default(MEDIUM)
-  estimatedDurationDays Int?
-  isMilestone      Boolean @default(false)
-
-  createdAt        DateTime @default(now())
-
-  // Relations
-  snapshotPhase    WorkflowSnapshotPhase    @relation(fields: [snapshotPhaseId], references: [id], onDelete: Cascade)
-
-  @@map("workflow_snapshot_tasks")
-}
-
-model WorkflowSnapshotProgress {
-  id               String   @id @default(cuid())
-  snapshotId       String   @unique
-
-  totalTasks       Int      @default(0)
-  completedTasks   Int      @default(0)
-  perPhase         Json?    // { phaseOrderOrId: { total: N, completed: M, percentage: P } }
-
-  updatedAt        DateTime @updatedAt
-
-  // Relations
-  snapshot         WorkflowSnapshot         @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
-
-  @@map("workflow_snapshot_progress")
+enum WorkflowStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
 }
