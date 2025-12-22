@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "turbo build",
-    "dev": "concurrently \"pnpm run dev:proxy\" \"pnpm run dev:web\"",
-    "dev:proxy": "pnpm --filter @horizon/proxy run dev",
-    "dev:web": "pnpm --filter @horizon/web run dev -- --port 3001",
+    "dev": "concurrently \"bun run dev:proxy\" \"bun run dev:web\"",
+    "dev:proxy": "bun --filter=@horizon/proxy dev",
+    "dev:web": "bun --filter=@horizon/web dev -- --port 3001",
     "dev:all": "turbo dev",
     "lint": "turbo lint",
     "lint:fix": "turbo lint:fix",
@@ -18,10 +18,14 @@
     "clean": "turbo clean",
     "prepare": "husky"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.7.1",
+  "packageManager": "bun@1.2.21",
   "devDependencies": {
     "concurrently": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^8.50.0",

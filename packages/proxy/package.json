@@ -4,9 +4,9 @@
   "private": true,
   "description": "Authentication proxy for Horizon web application",
   "scripts": {
-    "dev": "tsx watch proxy.ts",
-    "start": "tsx proxy.ts",
-    "build": "tsx proxy.ts",
+    "dev": "bun --watch proxy.ts",
+    "start": "bun proxy.ts",
+    "build": "bun build proxy.ts --outfile dist/index.js --target node",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
