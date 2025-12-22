@@ -17,22 +17,8 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    // Check if user is already authenticated
-    const checkAuth = async () => {
-      try {
-        const { valid } = await authHelpers.verifySession();
-        if (valid) {
-          router.push('/dashboard');
-        }
-      } catch (error) {
-        // User is not authenticated, stay on signup page
-        console.log('User not authenticated, showing signup page');
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+  // Removed client-side session check to prevent redirect loops
+  // Users will just see the signup form if they navigate here
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({

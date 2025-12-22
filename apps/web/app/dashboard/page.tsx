@@ -1,36 +1,35 @@
-'use client';
+import { authServer } from '@/lib/auth-server';
+import { prisma } from '@horizon/db';
+import { redirect } from 'next/navigation';
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+export const dynamic = 'force-dynamic';
 
-export default function DashboardPage() {
-  const router = useRouter();
+export default async function DashboardPage() {
+  const session = await authServer.getSession();
 
-  useEffect(() => {
-    // Get user role from headers (injected by proxy)
-    const userRole = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('user-role='))
-      ?.split('=')[1];
+  if (!session) {
+    redirect('/auth/login');
+  }
 
-    // Redirect based on role
-    if (userRole === 'ADMIN') {
-      router.push('/dashboard/admin');
-    } else if (userRole === 'CLIENT') {
-      router.push('/dashboard/client');
-    } else {
-      // If no role found, redirect to login
-      router.push('/auth/login');
-    }
-  }, [router]);
+  // Get user role from DB to ensure accuracy
+  const user = await prisma.users.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
 
-  // Show loading while redirecting
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-8 h-8 border-4 border-black/20 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading your dashboard...</p>
-      </div>
-    </div>
-  );
+  if (!user) {
+    // User exists in session but not in DB (orphaned session).
+    // Redirect to sign-out to clear the session cookie.
+    // We can use the api route typically, or just redirect to login if we can't force signout here.
+    // Better auth usually has a signout endpoint.
+    // Redirect to login. The user will have to manually sign out or their new login will overwrite the cookie.
+    redirect('/auth/login');
+  }
+
+  if (user.role === 'ADMIN') {
+    redirect('/dashboard/admin');
+  } else {
+    // Default to client dashboard
+    redirect('/dashboard/client');
+  }
 }

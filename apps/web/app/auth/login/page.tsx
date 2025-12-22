@@ -12,22 +12,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    // Check if user is already authenticated
-    const checkAuth = async () => {
-      try {
-        const { valid } = await authHelpers.verifySession();
-        if (valid) {
-          router.push('/dashboard');
-        }
-      } catch (error) {
-        // User is not authenticated, stay on login page
-        console.log('User not authenticated, showing login page');
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+  // Removed client-side session check to prevent redirect loops
+  // Users will just see the login form if they navigate here
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

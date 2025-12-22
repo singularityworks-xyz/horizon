@@ -1,31 +1,13 @@
-'use client';
+import { authServer } from '@/lib/auth-server';
+import { redirect } from 'next/navigation';
+import React from 'react';
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { authHelpers } from '@/lib/auth-client';
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const session = await authServer.getSession();
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-}
-
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Check if user is authenticated
-    const checkAuth = async () => {
-      try {
-        const { valid } = await authHelpers.verifySession();
-        if (!valid) {
-          router.push('/auth/login');
-        }
-      } catch (error) {
-        router.push('/auth/login');
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+  if (!session) {
+    redirect('/auth/login');
+  }
 
   return <div className="min-h-screen bg-gray-50">{children}</div>;
 }
