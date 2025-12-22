@@ -1,6 +1,6 @@
 // Provider abstraction types and interfaces
 
-import { LanguageModelV1 } from 'ai';
+import type { LanguageModelV1 } from 'ai';
 
 // Supported provider IDs
 export type ProviderId = 'openrouter' | 'gemini';
@@ -19,7 +19,7 @@ export interface ProviderConfig {
 }
 
 // Model creation function type
-export type ModelFactory = (tier: ModelTier) => LanguageModelV1;
+export type ModelFactory = (tier: ModelTier) => any;
 
 // Provider interface - each provider implements this
 export interface AiProvider {
@@ -30,7 +30,7 @@ export interface AiProvider {
   isConfigured(): boolean;
 
   // Create a model instance for the given tier
-  createModel(tier: ModelTier): LanguageModelV1;
+  createModel(tier: ModelTier): any;
 
   // Get the actual model identifier used by this provider for a tier
   getModelId(tier: ModelTier): string;
@@ -40,6 +40,6 @@ export interface AiProvider {
 export interface ProviderSelection {
   provider: AiProvider;
   tier: ModelTier;
-  model: LanguageModelV1;
+  model: any;
   fallbackUsed?: boolean;
 }

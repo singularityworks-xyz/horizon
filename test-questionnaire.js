@@ -35,20 +35,30 @@ async function testDatabase() {
     const templatesWithQuestions = await prisma.questionnaireTemplate.findMany({
       include: {
         questions: {
-          select: { id: true, type: true, title: true, order: true, required: true }
+          select: {
+            id: true,
+            type: true,
+            title: true,
+            order: true,
+            required: true,
+          },
         },
         _count: {
-          select: { submissions: true }
-        }
+          select: { submissions: true },
+        },
       },
-      take: 1
+      take: 1,
     });
 
     if (templatesWithQuestions.length > 0) {
       const template = templatesWithQuestions[0];
-      console.log(`   ✓ Template relationship test passed: "${template.name}" has ${template.questions.length} questions and ${template._count.submissions} submissions`);
+      console.log(
+        `   ✓ Template relationship test passed: "${template.name}" has ${template.questions.length} questions and ${template._count.submissions} submissions`
+      );
     } else {
-      console.log('   ✓ Template relationship test passed: No templates found (expected for fresh DB)');
+      console.log(
+        '   ✓ Template relationship test passed: No templates found (expected for fresh DB)'
+      );
     }
 
     await prisma.$disconnect();
@@ -99,14 +109,13 @@ async function testRuntimeConfig() {
     const path = require('path');
 
     const apiRoutes = [
-      'apps/web-admin/app/api/questionnaires/templates/route.ts',
-      'apps/web-admin/app/api/questionnaires/templates/[templateId]/clone/route.ts',
-      'apps/web-admin/app/api/questionnaires/templates/[templateId]/questions/route.ts',
-      'apps/web-admin/app/api/questionnaires/submissions/route.ts',
-      'apps/web-admin/app/api/questionnaires/submissions/[id]/route.ts',
-      'apps/web-admin/app/api/questionnaires/submissions/[id]/submit/route.ts',
-      'apps/web-admin/app/api/questionnaires/submissions/[id]/lock/route.ts',
-      'apps/web-admin/middleware.ts',
+      'apps/web/app/api/questionnaires/templates/route.ts',
+      'apps/web/app/api/questionnaires/templates/[templateId]/clone/route.ts',
+      'apps/web/app/api/questionnaires/templates/[templateId]/questions/route.ts',
+      'apps/web/app/api/questionnaires/submissions/route.ts',
+      'apps/web/app/api/questionnaires/submissions/[id]/route.ts',
+      'apps/web/app/api/questionnaires/submissions/[id]/submit/route.ts',
+      'apps/web/app/api/questionnaires/submissions/[id]/lock/route.ts',
     ];
 
     let runtimeConfigured = true;
@@ -115,8 +124,9 @@ async function testRuntimeConfig() {
       if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath, 'utf8');
         // Check for either direct export or import from centralized file
-        const hasRuntime = content.includes('runtime = "nodejs"') ||
-                          (content.includes('import { runtime }') && content.includes('@/lib/api-runtime'));
+        const hasRuntime =
+          content.includes('runtime = "nodejs"') ||
+          (content.includes('import { runtime }') && content.includes('@/lib/api-runtime'));
         if (!hasRuntime) {
           console.log(`   ✗ ${route} missing runtime configuration`);
           runtimeConfigured = false;
@@ -129,7 +139,7 @@ async function testRuntimeConfig() {
     }
 
     // Check centralized runtime file
-    const runtimeFile = path.join(process.cwd(), 'apps/web-admin/lib/api-runtime.ts');
+    const runtimeFile = path.join(process.cwd(), 'apps/web/lib/api-runtime.ts');
     if (fs.existsSync(runtimeFile)) {
       const content = fs.readFileSync(runtimeFile, 'utf8');
       if (content.includes('export const runtime = "nodejs"')) {
@@ -153,7 +163,7 @@ async function runTests() {
     testDatabase(),
     testPrismaSchema(),
     testTypeScript(),
-    testRuntimeConfig()
+    testRuntimeConfig(),
   ]);
 
   const passed = results.filter(Boolean).length;
@@ -162,14 +172,18 @@ async function runTests() {
   console.log(`\n📊 Test Results: ${passed}/${total} tests passed`);
 
   if (passed === total) {
-    console.log('\n🎉 All tests passed! Questionnaire engine database schema and core functionality are working correctly.');
+    console.log(
+      '\n🎉 All tests passed! Questionnaire engine database schema and core functionality are working correctly.'
+    );
     console.log('\n✅ Verified:');
     console.log('   • Database connection and schema are valid');
     console.log('   • All questionnaire-related tables exist');
     console.log('   • Table relationships are properly configured');
     console.log('   • Prisma client generation succeeded');
     console.log('   • TypeScript compilation succeeded');
-    console.log('\n🚀 The questionnaire engine is ready for API testing once runtime issues are resolved!');
+    console.log(
+      '\n🚀 The questionnaire engine is ready for API testing once runtime issues are resolved!'
+    );
   } else {
     console.log('\n❌ Some tests failed. Please check the errors above.');
   }

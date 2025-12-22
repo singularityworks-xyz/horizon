@@ -2,6 +2,7 @@
 // Uses Prisma to track and enforce per-tenant rate limits
 
 import { prisma } from '@horizon/db';
+import { randomUUID } from 'node:crypto';
 import { AiError } from '../errors';
 
 export interface RateLimitConfig {
@@ -28,9 +29,9 @@ export class DbRateLimiter {
 
   // Available windows
   private static readonly WINDOWS = [
-    { name: 'minute', config: this.DEFAULTS.perMinute },
-    { name: 'hour', config: this.DEFAULTS.perHour },
-    { name: 'day', config: this.DEFAULTS.perDay },
+    { name: 'minute', config: DbRateLimiter.DEFAULTS.perMinute },
+    { name: 'hour', config: DbRateLimiter.DEFAULTS.perHour },
+    { name: 'day', config: DbRateLimiter.DEFAULTS.perDay },
   ] as const;
 
   /**
@@ -54,7 +55,7 @@ export class DbRateLimiter {
     for (const { name: windowName, config } of windows) {
       const windowStart = await this.getWindowStart(now, config.windowMs);
 
-      const existing = await prisma.aiRateLimit.findUnique({
+      const existing = await prisma.ai_rate_limits.findUnique({
         where: {
           tenantId_scope_window_windowStart: {
             tenantId,
@@ -121,7 +122,7 @@ export class DbRateLimiter {
     const windowStart = await this.getWindowStart(now, config.windowMs);
 
     // Check current count in this window
-    const existing = await prisma.aiRateLimit.findUnique({
+    const existing = await prisma.ai_rate_limits.findUnique({
       where: {
         tenantId_scope_window_windowStart: {
           tenantId,
@@ -160,7 +161,7 @@ export class DbRateLimiter {
       for (const windowResult of windowResults) {
         const windowStart = await this.getWindowStart(now, windowResult.config.windowMs);
 
-        await tx.aiRateLimit.upsert({
+        await tx.ai_rate_limits.upsert({
           where: {
             tenantId_scope_window_windowStart: {
               tenantId,
@@ -174,11 +175,13 @@ export class DbRateLimiter {
             updatedAt: now,
           },
           create: {
+            id: randomUUID(),
             tenantId,
             scope,
             window: windowResult.window,
             windowStart,
             count: 1,
+            updatedAt: now,
           },
         });
       }
@@ -210,7 +213,7 @@ export class DbRateLimiter {
 
     try {
       // Use Postgres date_trunc for consistent window alignment
-      const result = await this.prisma.$queryRaw<{ window_start: Date }[]>`
+      const result = await prisma.$queryRaw<{ window_start: Date }[]>`
         SELECT date_trunc(${windowType}, ${now}::timestamp) as window_start
       `;
 
@@ -230,7 +233,7 @@ export class DbRateLimiter {
    * Get current rate limit status for a tenant/scope without consuming tokens
    */
   async getStatus(tenantId: string, scope: string): Promise<RateLimitResult> {
-    const config = this.constructor.DEFAULTS.perMinute;
+    const config = DbRateLimiter.DEFAULTS.perMinute;
     return this.checkSingleLimit(tenantId, scope, {
       ...config,
       window: 'minute',

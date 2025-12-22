@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { selectProvider, ModelTier } from '../providers';
+import { describe, expect, it, vi } from 'vitest';
+import { ModelTier, selectProvider } from '../providers';
+import { env } from '@horizon/config/src/env';
 
 // Mock the environment variables
-vi.mock('@horizon/config', () => ({
+vi.mock('@horizon/config/src/env', () => ({
   env: {
     OPENROUTER_API_KEY: 'test-openrouter-key',
     GEMINI_API_KEY: 'test-gemini-key',
@@ -28,7 +29,7 @@ describe('Provider Selection', () => {
 
     it('should fallback to Gemini when OpenRouter not configured', () => {
       // Temporarily mock config to not have OpenRouter
-      vi.mocked('@horizon/config').env.OPENROUTER_API_KEY = undefined;
+      (env as any).OPENROUTER_API_KEY = undefined;
 
       const result = selectProvider(undefined, ModelTier.QUALITY);
 
@@ -37,21 +38,21 @@ describe('Provider Selection', () => {
       expect(result.fallbackUsed).toBe(true);
 
       // Restore mock
-      vi.mocked('@horizon/config').env.OPENROUTER_API_KEY = 'test-openrouter-key';
+      (env as any).OPENROUTER_API_KEY = 'test-openrouter-key';
     });
 
     it('should throw error when no providers configured', () => {
       // Mock both providers as not configured
-      vi.mocked('@horizon/config').env.OPENROUTER_API_KEY = undefined;
-      vi.mocked('@horizon/config').env.GEMINI_API_KEY = undefined;
+      (env as any).OPENROUTER_API_KEY = undefined;
+      (env as any).GEMINI_API_KEY = undefined;
 
       expect(() => {
         selectProvider(undefined, ModelTier.BALANCED);
       }).toThrow('No AI providers are configured');
 
       // Restore mocks
-      vi.mocked('@horizon/config').env.OPENROUTER_API_KEY = 'test-openrouter-key';
-      vi.mocked('@horizon/config').env.GEMINI_API_KEY = 'test-gemini-key';
+      (env as any).OPENROUTER_API_KEY = 'test-openrouter-key';
+      (env as any).GEMINI_API_KEY = 'test-gemini-key';
     });
   });
 });

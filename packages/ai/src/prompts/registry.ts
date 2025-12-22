@@ -1,7 +1,7 @@
 // Prompt Registry - manages versioned prompts stored in the repository
 
-import { readFileSync, readdirSync, statSync } from 'fs';
-import { join, dirname } from 'path';
+import { readdirSync, readFileSync, statSync } from 'fs';
+import { dirname, join } from 'path';
 
 export interface PromptVersion {
   id: string;
@@ -107,7 +107,9 @@ export class PromptRegistry {
    */
   getAvailablePrompts(): string[] {
     try {
-      const entries = readdirSync(PromptRegistry.PROMPTS_DIR, { withFileTypes: true });
+      const entries = readdirSync(PromptRegistry.PROMPTS_DIR, {
+        withFileTypes: true,
+      });
       return entries
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name)

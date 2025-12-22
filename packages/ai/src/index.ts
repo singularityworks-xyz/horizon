@@ -2,11 +2,11 @@
 // Provides provider abstraction, rate limiting, prompt versioning, and error handling
 
 import { generateId, generateText } from 'ai';
-import { z } from 'zod';
+import type { z } from 'zod';
 import { AiError, AiErrorCode } from './errors';
-import { selectProvider, ModelTier } from './providers';
-import { rateLimiter } from './rate-limit';
 import { promptRegistry } from './prompts';
+import { ModelTier, selectProvider } from './providers';
+import { rateLimiter } from './rate-limit';
 
 export * from './errors';
 export * from './providers/types';
@@ -126,12 +126,12 @@ export class AiOrchestrator {
         if (!validationResult.success) {
           return this.createErrorResponse(
             requestId,
-            AiError.parseError(outputSchema._def.typeName, JSON.stringify(result.data)),
+            AiError.parseError((outputSchema._def as any).typeName, JSON.stringify(result.data)),
             {
               provider: result.metadata.provider,
               promptVersion: prompt.version,
               executionTimeMs: result.metadata.executionTimeMs,
-              validationErrors: validationResult.error.errors,
+              validationErrors: (validationResult.error as any).errors,
             }
           );
         }
@@ -142,7 +142,7 @@ export class AiOrchestrator {
         };
       }
 
-      return result;
+      return result as AiTaskResponse<T>;
     } catch (error) {
       return this.createErrorResponse(
         requestId,
@@ -207,7 +207,6 @@ export class AiOrchestrator {
 
         // If this wasn't the last attempt, continue to next provider
         if (attempts <= maxRetries) {
-          continue;
         }
       }
     }

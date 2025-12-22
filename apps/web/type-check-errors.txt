@@ -1,0 +1,201 @@
+
+> @horizon/web@0.1.0 type-check /Users/koustubhpande/dev/singularityworks/horizon/apps/web
+> tsc --noEmit
+
+app/api/assets/[id]/route.ts(57,16): error TS2353: Object literal may only specify known properties, and 'versions' does not exist in type 'AssetsCountOutputTypeSelect<DefaultArgs>'.
+app/api/assets/[id]/route.ts(123,16): error TS2353: Object literal may only specify known properties, and 'versions' does not exist in type 'AssetsCountOutputTypeSelect<DefaultArgs>'.
+app/api/assets/[id]/route.ts(133,13): error TS2339: Property '_count' does not exist on type '{ name: string; id: string; createdAt: Date; updatedAt: Date; tenantId: string; projectId: string | null; workflowId: string | null; questionId: string | null; answerId: string | null; ... 9 more ...; url: string | null; }'.
+app/api/assets/complete/route.ts(78,4): error TS2322: Type '{ id: string; tenantId: string; uploaderId: string; name: string; fileName: string; mimeType: string; size: number; checksum: string; storageKey: string; accessLevel: "ADMIN_ONLY" | "TENANT" | "PUBLIC"; ... 5 more ...; taskId: string | null; }' is not assignable to type '(Without<assetsCreateInput, assetsUncheckedCreateInput> & assetsUncheckedCreateInput) | (Without<...> & assetsCreateInput)'.
+  Type '{ id: string; tenantId: string; uploaderId: string; name: string; fileName: string; mimeType: string; size: number; checksum: string; storageKey: string; accessLevel: "ADMIN_ONLY" | "TENANT" | "PUBLIC"; ... 5 more ...; taskId: string | null; }' is not assignable to type 'Without<assetsCreateInput, assetsUncheckedCreateInput> & assetsUncheckedCreateInput'.
+    Property 'updatedAt' is missing in type '{ id: string; tenantId: string; uploaderId: string; name: string; fileName: string; mimeType: string; size: number; checksum: string; storageKey: string; accessLevel: "ADMIN_ONLY" | "TENANT" | "PUBLIC"; ... 5 more ...; taskId: string | null; }' but required in type 'assetsUncheckedCreateInput'.
+app/api/assets/complete/route.ts(97,5): error TS2561: Object literal may only specify known properties, but 'project' does not exist in type 'assetsInclude<DefaultArgs>'. Did you mean to write 'projects'?
+app/api/assets/complete/route.ts(111,4): error TS2322: Type '{ assetId: string; version: number; checksum: string; size: number; storageKey: string; changeLog: string; }' is not assignable to type '(Without<asset_versionsCreateInput, asset_versionsUncheckedCreateInput> & asset_versionsUncheckedCreateInput) | (Without<...> & asset_versionsCreateInput)'.
+  Type '{ assetId: string; version: number; checksum: string; size: number; storageKey: string; changeLog: string; }' is not assignable to type 'Without<asset_versionsCreateInput, asset_versionsUncheckedCreateInput> & asset_versionsUncheckedCreateInput'.
+    Property 'id' is missing in type '{ assetId: string; version: number; checksum: string; size: number; storageKey: string; changeLog: string; }' but required in type 'asset_versionsUncheckedCreateInput'.
+app/api/assets/complete/route.ts(178,36): error TS2561: Object literal may only specify known properties, but 'template' does not exist in type 'questionsWhereInput'. Did you mean to write 'templateId'?
+app/api/assets/complete/route.ts(220,33): error TS2561: Object literal may only specify known properties, but 'workflow' does not exist in type 'phasesWhereInput'. Did you mean to write 'workflows'?
+app/api/assets/complete/route.ts(234,32): error TS2561: Object literal may only specify known properties, but 'phase' does not exist in type 'tasksWhereInput'. Did you mean to write 'phases'?
+app/api/assets/presign/route.ts(98,34): error TS2551: Property '_type' does not exist on type 'ZodObject<{ fileName: ZodString; mimeType: ZodString; size: ZodNumber; projectId: ZodOptional<ZodString>; questionId: ZodOptional<ZodString>; ... 4 more ...; accessLevel: ZodDefault<...>; }, $strip>'. Did you mean 'type'?
+app/api/assets/presign/route.ts(106,11): error TS2551: Property 'project' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'projects'?
+app/api/assets/presign/route.ts(111,12): error TS7006: Parameter 'project' implicitly has an 'any' type.
+app/api/assets/presign/route.ts(120,11): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/assets/presign/route.ts(125,12): error TS7006: Parameter 'question' implicitly has an 'any' type.
+app/api/assets/presign/route.ts(134,11): error TS2551: Property 'answer' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'answers'?
+app/api/assets/presign/route.ts(139,12): error TS7006: Parameter 'answer' implicitly has an 'any' type.
+app/api/assets/presign/route.ts(148,11): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/assets/presign/route.ts(153,12): error TS7006: Parameter 'workflow' implicitly has an 'any' type.
+app/api/assets/presign/route.ts(162,11): error TS2551: Property 'phase' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'phases'?
+app/api/assets/presign/route.ts(167,12): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+app/api/assets/presign/route.ts(176,11): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/assets/presign/route.ts(181,12): error TS7006: Parameter 'task' implicitly has an 'any' type.
+app/api/client/projects/[id]/route.ts(7,27): error TS2339: Property 'clientOnly' does not exist on type '{ adminOnly: <T extends { userId: string; role: "ADMIN"; tenantId: string; }>(handler: GuardedHandler<T>) => (request: NextRequest) => Promise<NextResponse<unknown>>; clientAccess: <T extends { userId: string; role: "CLIENT" | "ADMIN"; tenantId: string; }>(handler: GuardedHandler<...>) => (request: NextRequest) => P...'.
+app/api/client/projects/[id]/route.ts(7,45): error TS7006: Parameter 'request' implicitly has an 'any' type.
+app/api/client/projects/[id]/route.ts(7,54): error TS7006: Parameter 'context' implicitly has an 'any' type.
+app/api/client/projects/[id]/route.ts(54,7): error TS2353: Object literal may only specify known properties, and 'progress' does not exist in type 'workflow_snapshotsInclude<DefaultArgs>'.
+app/api/client/projects/route.ts(6,27): error TS2339: Property 'clientOnly' does not exist on type '{ adminOnly: <T extends { userId: string; role: "ADMIN"; tenantId: string; }>(handler: GuardedHandler<T>) => (request: NextRequest) => Promise<NextResponse<unknown>>; clientAccess: <T extends { userId: string; role: "CLIENT" | "ADMIN"; tenantId: string; }>(handler: GuardedHandler<...>) => (request: NextRequest) => P...'.
+app/api/client/projects/route.ts(6,45): error TS7006: Parameter 'request' implicitly has an 'any' type.
+app/api/client/projects/route.ts(6,54): error TS7006: Parameter 'context' implicitly has an 'any' type.
+app/api/client/projects/route.ts(62,7): error TS2353: Object literal may only specify known properties, and 'progress' does not exist in type 'workflow_snapshotsInclude<DefaultArgs>'.
+app/api/client/workflow-snapshots/route.ts(8,27): error TS2339: Property 'clientOnly' does not exist on type '{ adminOnly: <T extends { userId: string; role: "ADMIN"; tenantId: string; }>(handler: GuardedHandler<T>) => (request: NextRequest) => Promise<NextResponse<unknown>>; clientAccess: <T extends { userId: string; role: "CLIENT" | "ADMIN"; tenantId: string; }>(handler: GuardedHandler<...>) => (request: NextRequest) => P...'.
+app/api/client/workflow-snapshots/route.ts(8,45): error TS7006: Parameter 'request' implicitly has an 'any' type.
+app/api/client/workflow-snapshots/route.ts(8,54): error TS7006: Parameter 'context' implicitly has an 'any' type.
+app/api/client/workflow-snapshots/route.ts(20,34): error TS2551: Property 'workflowSnapshot' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflow_snapshots'?
+app/api/client/workflow-snapshots/route.ts(23,42): error TS7006: Parameter 'snapshot' implicitly has an 'any' type.
+app/api/client/workflow-snapshots/route.ts(28,33): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+app/api/questionnaires/submissions/[id]/lock/route.ts(19,35): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/[id]/lock/route.ts(42,42): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/[id]/route.ts(18,35): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/[id]/submit/route.ts(19,35): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/[id]/submit/route.ts(49,5): error TS7006: Parameter 'q' implicitly has an 'any' type.
+app/api/questionnaires/submissions/[id]/submit/route.ts(52,28): error TS7006: Parameter 'a' implicitly has an 'any' type.
+app/api/questionnaires/submissions/[id]/submit/route.ts(55,5): error TS7006: Parameter 'q' implicitly has an 'any' type.
+app/api/questionnaires/submissions/[id]/submit/route.ts(60,69): error TS7006: Parameter 'q' implicitly has an 'any' type.
+app/api/questionnaires/submissions/[id]/submit/route.ts(68,6): error TS7006: Parameter 'q' implicitly has an 'any' type.
+app/api/questionnaires/submissions/[id]/submit/route.ts(88,42): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/route.ts(23,36): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/route.ts(60,33): error TS2551: Property 'questionnaireTemplate' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/submissions/route.ts(76,33): error TS2551: Property 'project' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'projects'?
+app/api/questionnaires/submissions/route.ts(89,43): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/route.ts(104,35): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/route.ts(147,35): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/submissions/route.ts(177,5): error TS7006: Parameter 'q' implicitly has an 'any' type.
+app/api/questionnaires/submissions/route.ts(192,7): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+app/api/questionnaires/submissions/route.ts(192,12): error TS7006: Parameter 'answer' implicitly has an 'any' type.
+app/api/questionnaires/submissions/route.ts(218,31): error TS2551: Property 'answer' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'answers'?
+app/api/questionnaires/templates/[templateId]/clone/route.ts(18,41): error TS2551: Property 'questionnaireTemplate' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/templates/[templateId]/clone/route.ts(37,33): error TS2551: Property 'questionnaireTemplate' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/templates/[templateId]/clone/route.ts(50,14): error TS2551: Property 'question' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'questions'?
+app/api/questionnaires/templates/[templateId]/clone/route.ts(51,44): error TS7006: Parameter 'question' implicitly has an 'any' type.
+app/api/questionnaires/templates/[templateId]/clone/route.ts(64,20): error TS2551: Property 'questionnaireTemplate' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(20,33): error TS2551: Property 'questionnaireTemplate' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(31,34): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(59,33): error TS2551: Property 'questionnaireTemplate' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(79,41): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(93,33): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(134,41): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(154,40): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(170,33): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(206,33): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/questionnaires/templates/[templateId]/questions/route.ts(234,16): error TS2551: Property 'question' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questions'?
+app/api/questionnaires/templates/route.ts(19,34): error TS2551: Property 'questionnaireTemplate' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/templates/route.ts(59,33): error TS2551: Property 'project' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'projects'?
+app/api/questionnaires/templates/route.ts(72,33): error TS2551: Property 'questionnaireTemplate' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/templates/route.ts(113,33): error TS2551: Property 'questionnaireTemplate' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_templates'?
+app/api/questionnaires/templates/route.ts(159,40): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+app/api/questionnaires/templates/route.ts(174,33): error TS2551: Property 'questionnaireTemplate' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_templates'?
+app/api/workflows/[workflowId]/dependencies/route.ts(22,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/dependencies/route.ts(34,37): error TS2551: Property 'taskDependency' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'task_dependencies'?
+app/api/workflows/[workflowId]/dependencies/route.ts(81,11): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/dependencies/route.ts(94,11): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/dependencies/route.ts(116,43): error TS2551: Property 'taskDependency' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'task_dependencies'?
+app/api/workflows/[workflowId]/dependencies/route.ts(131,40): error TS2551: Property 'taskDependency' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'task_dependencies'?
+app/api/workflows/[workflowId]/dependencies/route.ts(142,33): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/dependencies/route.ts(146,44): error TS7006: Parameter 't' implicitly has an 'any' type.
+app/api/workflows/[workflowId]/dependencies/route.ts(159,4): error TS2345: Argument of type 'Set<unknown>' is not assignable to parameter of type 'Set<string>'.
+  Type 'unknown' is not assignable to type 'string'.
+app/api/workflows/[workflowId]/dependencies/route.ts(169,35): error TS2551: Property 'taskDependency' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'task_dependencies'?
+app/api/workflows/[workflowId]/dependencies/route.ts(219,35): error TS2551: Property 'taskDependency' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'task_dependencies'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(25,30): error TS2551: Property 'phase' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'phases'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(40,30): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(75,30): error TS2551: Property 'phase' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'phases'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(94,37): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(112,6): error TS2353: Object literal may only specify known properties, and 'tenantId' does not exist in type 'userWhereInput'.
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(122,29): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(175,29): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(213,19): error TS2339: Property 'completedAt' does not exist on type '{ title?: string | undefined; description?: string | undefined; order?: number | undefined; status?: "COMPLETED" | "CANCELLED" | "PENDING" | "IN_PROGRESS" | "BLOCKED" | undefined; ... 4 more ...; isMilestone?: boolean | undefined; }'.
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(219,38): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(239,6): error TS2353: Object literal may only specify known properties, and 'tenantId' does not exist in type 'userWhereInput'.
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(249,36): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(304,11): error TS2551: Property 'taskDependency' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'task_dependencies'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(309,11): error TS2551: Property 'asset' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'assets'?
+app/api/workflows/[workflowId]/phases/[phaseId]/tasks/route.ts(325,29): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/phases/route.ts(21,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/phases/route.ts(33,31): error TS2551: Property 'phase' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'phases'?
+app/api/workflows/[workflowId]/phases/route.ts(64,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/phases/route.ts(80,38): error TS2551: Property 'phase' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'phases'?
+app/api/workflows/[workflowId]/phases/route.ts(94,30): error TS2551: Property 'phase' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'phases'?
+app/api/workflows/[workflowId]/route.ts(26,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/route.ts(70,37): error TS2551: Property 'taskDependency' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'task_dependencies'?
+app/api/workflows/[workflowId]/route.ts(81,45): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+app/api/workflows/[workflowId]/route.ts(82,21): error TS7006: Parameter 'task' implicitly has an 'any' type.
+app/api/workflows/[workflowId]/route.ts(128,41): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/route.ts(157,38): error TS2551: Property 'workflow' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/route.ts(196,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/route.ts(247,41): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/route.ts(259,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/route.ts(303,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/route.ts(338,37): error TS2551: Property 'workflow' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflows'?
+app/api/workflows/[workflowId]/tasks/[taskId]/complete/route.ts(20,26): error TS2551: Property 'task' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/tasks/[taskId]/complete/route.ts(62,33): error TS2551: Property 'task' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'tasks'?
+app/api/workflows/[workflowId]/tasks/[taskId]/complete/route.ts(85,38): error TS2551: Property 'workflowSnapshot' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshots'?
+app/api/workflows/[workflowId]/tasks/[taskId]/complete/route.ts(96,36): error TS2551: Property 'workflowSnapshotTask' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshot_tasks'?
+app/api/workflows/[workflowId]/tasks/[taskId]/complete/route.ts(107,17): error TS2551: Property 'workflowSnapshotProgress' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshot_progress'?
+app/api/workflows/[workflowId]/tasks/[taskId]/complete/route.ts(135,17): error TS2551: Property 'workflowSnapshotProgress' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshot_progress'?
+app/api/workflows/route.ts(36,34): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/route.ts(61,25): error TS7006: Parameter 'workflow' implicitly has an 'any' type.
+app/api/workflows/route.ts(64,13): error TS2551: Property 'task' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'tasks'?
+app/api/workflows/route.ts(68,13): error TS2551: Property 'taskDependency' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'task_dependencies'?
+app/api/workflows/route.ts(102,32): error TS2551: Property 'project' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'projects'?
+app/api/workflows/route.ts(117,41): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+app/api/workflows/route.ts(132,30): error TS2551: Property 'workflow' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflows'?
+app/api/workflows/route.ts(151,29): error TS2551: Property 'phase' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'phases'?
+app/api/workflows/route.ts(168,16): error TS2551: Property 'task' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'tasks'?
+app/api/workflows/route.ts(186,36): error TS2551: Property 'phase' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'phases'?
+app/api/workflows/route.ts(196,25): error TS7006: Parameter 'p' implicitly has an 'any' type.
+app/auth/forgot-password/page.tsx(64,10): error TS2322: Type '"/login"' is not assignable to type 'UrlObject | RouteImpl<"/login">'.
+app/auth/forgot-password/page.tsx(96,10): error TS2322: Type '"/login"' is not assignable to type 'UrlObject | RouteImpl<"/login">'.
+app/auth/login/page.tsx(170,10): error TS2322: Type '"/signup"' is not assignable to type 'UrlObject | RouteImpl<"/signup">'.
+app/auth/signup/page.tsx(76,16): error TS2345: Argument of type '"/login?message=Account created successfully"' is not assignable to parameter of type 'RouteImpl<"/login?message=Account created successfully">'.
+app/auth/signup/page.tsx(252,10): error TS2322: Type '"/login"' is not assignable to type 'UrlObject | RouteImpl<"/login">'.
+app/dashboard/client/page.tsx(177,10): error TS2322: Type '`/dashboard/projects/${any}`' is not assignable to type 'UrlObject | RouteImpl<`/dashboard/projects/${any}`>'.
+lib/ai/workflow-generation/generate.ts(4,20): error TS2307: Cannot find module '@horizon/ai' or its corresponding type declarations.
+lib/ai/workflow-generation/index.ts(4,20): error TS2307: Cannot find module '@horizon/ai' or its corresponding type declarations.
+lib/ai/workflow-generation/index.ts(81,43): error TS2551: Property 'aiWorkflowGeneration' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'ai_workflow_generations'?
+lib/ai/workflow-generation/index.ts(102,7): error TS2322: Type '"PENDING"' is not assignable to type '"FAILED" | "SUCCEEDED"'.
+lib/ai/workflow-generation/index.ts(120,41): error TS2551: Property 'aiWorkflowGeneration' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'ai_workflow_generations'?
+lib/ai/workflow-generation/index.ts(148,17): error TS2551: Property 'aiWorkflowGeneration' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'ai_workflow_generations'?
+lib/ai/workflow-generation/index.ts(223,17): error TS2551: Property 'aiWorkflowGeneration' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'ai_workflow_generations'?
+lib/ai/workflow-generation/index.ts(265,15): error TS2551: Property 'aiWorkflowGeneration' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'ai_workflow_generations'?
+lib/ai/workflow-generation/normalize.ts(12,35): error TS2551: Property 'questionnaireSubmission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'questionnaire_submissions'?
+lib/ai/workflow-generation/normalize.ts(41,53): error TS7006: Parameter 'answer' implicitly has an 'any' type.
+lib/ai/workflow-generation/persist.ts(19,32): error TS2551: Property 'questionnaireSubmission' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'questionnaire_submissions'?
+lib/ai/workflow-generation/persist.ts(32,30): error TS2551: Property 'workflow' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflows'?
+lib/ai/workflow-generation/persist.ts(47,28): error TS2551: Property 'phase' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'phases'?
+lib/ai/workflow-generation/persist.ts(60,15): error TS2551: Property 'task' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'tasks'?
+lib/ai/workflow-generation/validate.ts(26,27): error TS2339: Property 'errors' does not exist on type 'ZodError<{ projectId: string; name: string; source: "MANUAL" | "AI_GENERATED"; status: "DRAFT" | "ACTIVE" | "COMPLETED" | "ARCHIVED"; description?: string | undefined; phases?: { name: string; ... 6 more ...; endDate?: string | undefined; }[] | undefined; }>'.
+lib/ai/workflow-generation/validate.ts(27,7): error TS7006: Parameter 'err' implicitly has an 'any' type.
+lib/ai/workflow-generation/visibility.ts(4,15): error TS2724: '"@horizon/db"' has no exported member named 'Prisma'. Did you mean 'prisma'?
+lib/ai/workflow-generation/visibility.ts(5,40): error TS2307: Cannot find module '../workflow-snapshots/create' or its corresponding type declarations.
+lib/ai/workflow-generation/visibility.ts(195,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+lib/ai/workflow-generation/visibility.ts(219,16): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+lib/api/client.ts(78,29): error TS2561: Object literal may only specify known properties, but 'role' does not exist in type 'usersSelect<DefaultArgs>'. Did you mean to write 'roles'?
+lib/api/client.ts(140,6): error TS2353: Object literal may only specify known properties, and 'progress' does not exist in type 'workflow_snapshotsInclude<DefaultArgs>'.
+lib/api/client.ts(270,29): error TS2561: Object literal may only specify known properties, but 'role' does not exist in type 'usersSelect<DefaultArgs>'. Did you mean to write 'roles'?
+lib/api/client.ts(322,6): error TS2353: Object literal may only specify known properties, and 'progress' does not exist in type 'workflow_snapshotsInclude<DefaultArgs>'.
+lib/api/client.ts(440,4): error TS2322: Type 'Date' is not assignable to type 'string'.
+lib/api/client.ts(441,4): error TS2322: Type 'Date' is not assignable to type 'string'.
+lib/assets/validation.ts(95,58): error TS2345: Argument of type 'string' is not assignable to parameter of type '"application/pdf" | "application/msword" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document" | "application/vnd.ms-excel" | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" | ... 13 more ... | "application/x-7z-compressed"'.
+lib/assets/validation.ts(103,61): error TS2345: Argument of type 'string' is not assignable to parameter of type '"application/pdf" | "application/msword" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document" | "application/vnd.ms-excel" | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" | ... 4 more ... | "application/rtf"'.
+lib/assets/validation.ts(106,58): error TS2345: Argument of type 'string' is not assignable to parameter of type '"image/jpeg" | "image/png" | "image/gif" | "image/webp" | "image/svg+xml"'.
+lib/assets/validation.ts(109,60): error TS2345: Argument of type 'string' is not assignable to parameter of type '"application/zip" | "application/x-zip-compressed" | "application/x-rar-compressed" | "application/x-7z-compressed"'.
+lib/auth/index.ts(65,9): error TS2561: Object literal may only specify known properties, but 'role' does not exist in type 'Without<usersCreateInput, usersUncheckedCreateInput> & usersUncheckedCreateInput'. Did you mean to write 'roles'?
+lib/env.ts(51,30): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+lib/env.ts(52,11): error TS7006: Parameter 'err' implicitly has an 'any' type.
+lib/storage/r2.ts(28,14): error TS2339: Property 'CLOUDFLARE_R2_REGION' does not exist on type '{ BETTER_AUTH_SECRET: string; BETTER_AUTH_URL: string; DATABASE_URL: string; NODE_ENV: "development" | "production" | "test"; ENABLE_ANALYTICS: string; OPENROUTER_API_KEY?: string | undefined; ... 5 more ...; CLOUDFLARE_R2_BUCKET_NAME?: string | undefined; }'.
+lib/storage/r2.ts(29,21): error TS2339: Property 'CLOUDFLARE_R2_PUBLIC_BASE_URL' does not exist on type '{ BETTER_AUTH_SECRET: string; BETTER_AUTH_URL: string; DATABASE_URL: string; NODE_ENV: "development" | "production" | "test"; ENABLE_ANALYTICS: string; OPENROUTER_API_KEY?: string | undefined; ... 5 more ...; CLOUDFLARE_R2_BUCKET_NAME?: string | undefined; }'.
+lib/workflow-snapshots/create.ts(24,33): error TS2551: Property 'workflow' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflows'?
+lib/workflow-snapshots/create.ts(56,41): error TS2551: Property 'workflowSnapshot' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflow_snapshots'?
+lib/workflow-snapshots/create.ts(81,13): error TS2551: Property 'workflowSnapshot' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshots'?
+lib/workflow-snapshots/create.ts(91,46): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+lib/workflow-snapshots/create.ts(92,22): error TS7006: Parameter 'task' implicitly has an 'any' type.
+lib/workflow-snapshots/create.ts(98,38): error TS2551: Property 'taskDependency' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'task_dependencies'?
+lib/workflow-snapshots/create.ts(116,30): error TS2551: Property 'workflowSnapshot' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshots'?
+lib/workflow-snapshots/create.ts(131,36): error TS2551: Property 'workflowSnapshotPhase' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshot_phases'?
+lib/workflow-snapshots/create.ts(144,15): error TS2551: Property 'workflowSnapshotTask' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshot_tasks'?
+lib/workflow-snapshots/create.ts(175,13): error TS2551: Property 'workflowSnapshotProgress' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'. Did you mean 'workflow_snapshot_progress'?
+lib/workflow-snapshots/create.ts(204,16): error TS2551: Property 'workflowSnapshot' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'workflow_snapshots'?
+lib/workflow/compute.ts(1,15): error TS2305: Module '"@horizon/db"' has no exported member 'Phase'.
+lib/workflow/compute.ts(1,22): error TS2305: Module '"@horizon/db"' has no exported member 'Task'.
+lib/workflow/compute.ts(1,28): error TS2305: Module '"@horizon/db"' has no exported member 'TaskDependency'.
+lib/workflow/compute.ts(245,2): error TS1016: A required parameter cannot follow an optional parameter.
+ ELIFECYCLE  Command failed with exit code 1.

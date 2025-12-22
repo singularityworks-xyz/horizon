@@ -1,8 +1,8 @@
 // Gemini Provider Implementation
 // Uses Google's Gemini models via the AI SDK
 
-import { google } from '@ai-sdk/google';
-import { AiProvider, ModelTier, ProviderId } from './types';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { type AiProvider, ModelTier, type ProviderId } from './types';
 
 export class GeminiProvider implements AiProvider {
   readonly id: ProviderId = 'gemini';
@@ -19,9 +19,9 @@ export class GeminiProvider implements AiProvider {
       throw new Error('Gemini API key not configured');
     }
 
-    const client = google({ apiKey: this.apiKey });
+    const google = createGoogleGenerativeAI({ apiKey: this.apiKey });
     const modelId = this.getModelId(tier);
-    return client(modelId);
+    return google(modelId);
   }
 
   getModelId(tier: ModelTier): string {

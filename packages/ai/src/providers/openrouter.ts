@@ -2,7 +2,7 @@
 // Uses OpenRouter's OpenAI-compatible API
 
 import { createOpenAI } from '@ai-sdk/openai';
-import { AiProvider, ModelTier, ProviderId } from './types';
+import { type AiProvider, ModelTier, type ProviderId } from './types';
 
 export class OpenRouterProvider implements AiProvider {
   readonly id: ProviderId = 'openrouter';

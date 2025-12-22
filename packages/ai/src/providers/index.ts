@@ -1,15 +1,15 @@
 // Provider exports and selection logic
 
-export * from './types';
-export { OpenRouterProvider } from './openrouter';
 export { GeminiProvider } from './gemini';
-
-import { AiProvider, ProviderId, ProviderSelection, ModelTier } from './types';
-import { OpenRouterProvider } from './openrouter';
-import { GeminiProvider } from './gemini';
+export { OpenRouterProvider } from './openrouter';
+export * from './types';
 
 // Provider configuration from environment
 import { env } from '@horizon/config/src/env';
+import { GeminiProvider } from './gemini';
+import { OpenRouterProvider } from './openrouter';
+import { type AiProvider, ModelTier, type ProviderId, type ProviderSelection } from './types';
+
 const openRouterApiKey = env.OPENROUTER_API_KEY;
 const geminiApiKey = env.GEMINI_API_KEY;
 

@@ -1,0 +1,74 @@
+import { prisma } from '@horizon/db';
+import { NextRequest, NextResponse } from 'next/server';
+import { runtime } from '@/lib/api-runtime';
+import { apiErrors, guards } from '@/lib/security/guards';
+
+// GET /api/questionnaires/submissions/[id] - Get submission with questions and answers
+export const GET = guards.authenticated(async (request, context, params) => {
+  try {
+    const submissionId = params?.id || new URL(request.url).searchParams.get('id');
+
+    if (!submissionId) {
+      return apiErrors.badRequest('Submission ID is required');
+    }
+
+    // Get submission with full details
+    const submission = await prisma.questionnaire_submissions.findFirst({
+      where: {
+        id: submissionId,
+        tenantId: context.tenantId,
+      },
+      include: {
+        questionnaire_templates: {
+          include: {
+            questions: {
+              orderBy: { order: 'asc' },
+            },
+          },
+        },
+        projects: {
+          select: { id: true, name: true, description: true },
+        },
+        answers: {
+          include: {
+            questions: true,
+          },
+          orderBy: {
+            questions: { order: 'asc' },
+          },
+        },
+      },
+    });
+
+    if (!submission) {
+      return apiErrors.forbidden('Submission not found or access denied');
+    }
+
+    // Transform the response to include unanswered questions for completeness
+    const answeredQuestionIds = new Set((submission as any).answers.map((a: any) => a.questionId));
+    const unansweredQuestions = (submission as any).questionnaire_templates.questions
+      .filter((q: any) => !answeredQuestionIds.has(q.id))
+      .map((q: any) => ({
+        question: q,
+        answer: null,
+      }));
+
+    const completeResponses = [
+      ...(submission as any).answers.map((answer: any) => ({
+        question: answer.questions,
+        answer: answer,
+      })),
+      ...unansweredQuestions,
+    ].sort((a: any, b: any) => a.question.order - b.question.order);
+
+    return NextResponse.json({
+      submission: {
+        ...submission,
+        responses: completeResponses,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to fetch submission:', error);
+    return apiErrors.internalError('Failed to fetch questionnaire submission');
+  }
+});

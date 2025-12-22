@@ -256,7 +256,7 @@ model roles {
   createdAt DateTime @default(now())
   updatedAt DateTime
   tenants   tenants  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  users     users[]
+  users     users[]  @relation("user_roles")
 
   @@unique([tenantId, name])
 }
@@ -350,7 +350,7 @@ model user {
 model users {
   id                                        String               @id
   tenantId                                  String?
-  roleId                                    String?
+  role                                      UserRole             @default(CLIENT)
   email                                     String
   firstName                                 String?
   lastName                                  String?
@@ -361,11 +361,11 @@ model users {
   phases                                    phases[]
   tasks_tasks_assigneeIdTousers             tasks[]              @relation("tasks_assigneeIdTousers")
   tasks_tasks_lastEditedByIdTousers         tasks[]              @relation("tasks_lastEditedByIdTousers")
-  roles                                     roles?               @relation(fields: [roleId], references: [id], onDelete: Restrict)
   tenants                                   tenants?             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   workflow_snapshots                        workflow_snapshots[]
   workflows_workflows_aiApprovedByIdTousers workflows[]          @relation("workflows_aiApprovedByIdTousers")
   workflows_workflows_lastEditedByIdTousers workflows[]          @relation("workflows_lastEditedByIdTousers")
+  userRoles                                 roles[]              @relation("user_roles")
 
   @@unique([tenantId, email])
 }
@@ -471,6 +471,11 @@ enum AssetAccessLevel {
   ADMIN_ONLY
   TENANT
   PUBLIC
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
 }
 
 enum PhaseIntent {

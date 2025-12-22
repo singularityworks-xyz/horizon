@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { promptRegistry } from '../prompts/registry';
 
 describe('PromptRegistry', () => {
@@ -17,7 +17,9 @@ describe('PromptRegistry', () => {
     });
 
     it('should return specific version when requested', () => {
-      const result = promptRegistry.getPrompt('health-check', { version: 'v001' });
+      const result = promptRegistry.getPrompt('health-check', {
+        version: 'v001',
+      });
 
       expect(result.id).toBe('health-check');
       expect(result.version).toBe('v001');
