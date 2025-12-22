@@ -19,22 +19,22 @@ export const GET = guards.authenticated(async (request, context, params) => {
         tenantId: context.tenantId,
       },
       include: {
-        questionnaire_templates: {
+        template: {
           include: {
             questions: {
               orderBy: { order: 'asc' },
             },
           },
         },
-        projects: {
+        project: {
           select: { id: true, name: true, description: true },
         },
         answers: {
           include: {
-            questions: true,
+            question: true,
           },
           orderBy: {
-            questions: { order: 'asc' },
+            question: { order: 'asc' },
           },
         },
       },
@@ -46,7 +46,7 @@ export const GET = guards.authenticated(async (request, context, params) => {
 
     // Transform the response to include unanswered questions for completeness
     const answeredQuestionIds = new Set((submission as any).answers.map((a: any) => a.questionId));
-    const unansweredQuestions = (submission as any).questionnaire_templates.questions
+    const unansweredQuestions = (submission as any).template.questions
       .filter((q: any) => !answeredQuestionIds.has(q.id))
       .map((q: any) => ({
         question: q,

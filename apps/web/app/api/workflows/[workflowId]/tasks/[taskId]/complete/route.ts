@@ -68,7 +68,7 @@ export const POST = guards.adminOnly(async (request, context, params) => {
           updatedAt: new Date(),
         },
         include: {
-          users_tasks_assigneeIdTousers: {
+          assignee: {
             select: { id: true, firstName: true, lastName: true, email: true },
           },
           _count: {

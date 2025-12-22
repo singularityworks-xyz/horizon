@@ -39,7 +39,7 @@ export const GET = guards.adminOnly(async (request, context, params) => {
         projects: {
           select: { id: true, name: true },
         },
-        users_workflows_aiApprovedByIdTousers: {
+        aiApprovedBy: {
           select: { id: true, firstName: true, lastName: true },
         },
         ai_workflow_generations: {
@@ -67,8 +67,8 @@ export const GET = guards.adminOnly(async (request, context, params) => {
           }),
           prisma.task_dependencies.findMany({
             where: {
-              tasks_task_dependencies_fromTaskIdTotasks: { phases: { workflowId: workflow.id } },
-              tasks_task_dependencies_toTaskIdTotasks: { phases: { workflowId: workflow.id } },
+              fromTask: { phases: { workflowId: workflow.id } },
+              toTask: { phases: { workflowId: workflow.id } },
             },
             select: { fromTaskId: true, toTaskId: true },
           }),

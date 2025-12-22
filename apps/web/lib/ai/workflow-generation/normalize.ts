@@ -12,15 +12,15 @@ export async function normalizeSubmission(
     const submission = await prisma.questionnaire_submissions.findUnique({
       where: { id: submissionId },
       include: {
-        questionnaire_templates: {
+        template: {
           select: { id: true, name: true },
         },
-        projects: {
+        project: {
           select: { id: true, name: true },
         },
         answers: {
           include: {
-            questions: {
+            question: {
               select: {
                 id: true,
                 title: true,
@@ -33,24 +33,24 @@ export async function normalizeSubmission(
       },
     });
 
-    if (!submission || !submission.projects) {
+    if (!submission || !submission.project) {
       return null;
     }
 
     // Normalize answers into consistent format
     const normalizedAnswers = submission.answers.map((answer: any) => ({
       questionId: answer.questionId,
-      questionTitle: answer.questions.title,
-      questionType: answer.questions.type,
-      value: normalizeAnswerValue(answer.value, answer.questions.config as any),
+      questionTitle: answer.question.title,
+      questionType: answer.question.type,
+      value: normalizeAnswerValue(answer.value, answer.question.config as any),
     }));
 
     return {
       submissionId,
-      projectId: submission.projects.id,
+      projectId: submission.project.id,
       tenantId: submission.tenantId,
       answers: normalizedAnswers,
-      template: submission.questionnaire_templates,
+      template: submission.template,
     };
   } catch (error) {
     console.error('Failed to normalize submission:', error);

@@ -21,7 +21,7 @@ export const POST = guards.authenticated(async (request, context, params) => {
         status: 'DRAFT',
       },
       include: {
-        questionnaire_templates: {
+        template: {
           include: {
             questions: {
               orderBy: { order: 'asc' },
@@ -30,7 +30,7 @@ export const POST = guards.authenticated(async (request, context, params) => {
         },
         answers: {
           include: {
-            questions: true,
+            question: true,
           },
         },
       },
@@ -41,9 +41,7 @@ export const POST = guards.authenticated(async (request, context, params) => {
     }
 
     // Validate all required questions are answered
-    const requiredQuestions = (submission as any).questionnaire_templates.questions.filter(
-      (q: any) => q.required
-    );
+    const requiredQuestions = (submission as any).template.questions.filter((q: any) => q.required);
     const answeredQuestionIds = new Set(submission.answers.map((a: any) => a.questionId));
     const missingRequired = requiredQuestions.filter((q: any) => !answeredQuestionIds.has(q.id));
 
@@ -56,7 +54,7 @@ export const POST = guards.authenticated(async (request, context, params) => {
     // Validate all answers against their configs
     const invalidAnswers = [];
     for (const answer of submission.answers) {
-      const question = (submission as any).questionnaire_templates.questions.find(
+      const question = (submission as any).template.questions.find(
         (q: any) => q.id === answer.questionId
       );
       if (question) {
@@ -79,10 +77,10 @@ export const POST = guards.authenticated(async (request, context, params) => {
         submittedAt: new Date(),
       },
       include: {
-        questionnaire_templates: {
+        template: {
           select: { id: true, name: true, version: true },
         },
-        projects: {
+        project: {
           select: { id: true, name: true },
         },
         _count: {

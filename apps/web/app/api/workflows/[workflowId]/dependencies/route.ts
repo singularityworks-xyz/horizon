@@ -32,18 +32,18 @@ export const GET = guards.adminOnly(async (request, context, params) => {
 
     const dependencies = await prisma.task_dependencies.findMany({
       where: {
-        tasks_task_dependencies_fromTaskIdTotasks: { phases: { workflowId } },
-        tasks_task_dependencies_toTaskIdTotasks: { phases: { workflowId } },
+        fromTask: { phases: { workflowId } },
+        toTask: { phases: { workflowId } },
       },
       include: {
-        tasks_task_dependencies_fromTaskIdTotasks: {
+        fromTask: {
           select: {
             id: true,
             title: true,
             phases: { select: { id: true, name: true } },
           },
         },
-        tasks_task_dependencies_toTaskIdTotasks: {
+        toTask: {
           select: {
             id: true,
             title: true,
@@ -124,10 +124,7 @@ export const POST = guards.adminOnly(async (request, context, params) => {
     // Get all existing dependencies in the workflow
     const allDependencies = await prisma.task_dependencies.findMany({
       where: {
-        OR: [
-          { tasks_task_dependencies_fromTaskIdTotasks: { phases: { workflowId } } },
-          { tasks_task_dependencies_toTaskIdTotasks: { phases: { workflowId } } },
-        ],
+        OR: [{ fromTask: { phases: { workflowId } } }, { toTask: { phases: { workflowId } } }],
       },
       select: { id: true, fromTaskId: true, toTaskId: true },
     });
@@ -163,14 +160,14 @@ export const POST = guards.adminOnly(async (request, context, params) => {
         toTaskId: validatedData.toTaskId,
       },
       include: {
-        tasks_task_dependencies_fromTaskIdTotasks: {
+        fromTask: {
           select: {
             id: true,
             title: true,
             phases: { select: { id: true, name: true } },
           },
         },
-        tasks_task_dependencies_toTaskIdTotasks: {
+        toTask: {
           select: {
             id: true,
             title: true,
@@ -211,7 +208,7 @@ export const DELETE = guards.adminOnly(async (request, context, params) => {
           toTaskId: toTaskId!,
         },
         // Ensure both tasks belong to the workflow and tenant
-        tasks_task_dependencies_fromTaskIdTotasks: {
+        fromTask: {
           phases: {
             workflowId: workflowId!,
             workflows: {
@@ -219,7 +216,7 @@ export const DELETE = guards.adminOnly(async (request, context, params) => {
             },
           },
         },
-        tasks_task_dependencies_toTaskIdTotasks: {
+        toTask: {
           phases: {
             workflowId: workflowId!,
             workflows: {
@@ -229,14 +226,14 @@ export const DELETE = guards.adminOnly(async (request, context, params) => {
         },
       },
       include: {
-        tasks_task_dependencies_fromTaskIdTotasks: {
+        fromTask: {
           select: {
             id: true,
             title: true,
             phases: { select: { id: true, name: true } },
           },
         },
-        tasks_task_dependencies_toTaskIdTotasks: {
+        toTask: {
           select: {
             id: true,
             title: true,

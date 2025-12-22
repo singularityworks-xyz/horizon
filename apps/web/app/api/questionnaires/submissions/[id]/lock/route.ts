@@ -21,10 +21,10 @@ export const POST = guards.adminOnly(async (request, context, params) => {
         status: 'SUBMITTED', // Only allow locking submitted questionnaires
       },
       include: {
-        questionnaire_templates: {
+        template: {
           select: { id: true, name: true, version: true },
         },
-        projects: {
+        project: {
           select: { id: true, name: true },
         },
       },
@@ -42,10 +42,10 @@ export const POST = guards.adminOnly(async (request, context, params) => {
         lockedAt: new Date(),
       },
       include: {
-        questionnaire_templates: {
+        template: {
           select: { id: true, name: true, version: true },
         },
-        projects: {
+        project: {
           select: { id: true, name: true },
         },
         _count: {

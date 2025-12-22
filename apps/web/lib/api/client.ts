@@ -1,7 +1,7 @@
+'use server';
+
 import { prisma } from '@horizon/db';
 import { authServer } from '@/lib/auth-server';
-
-('use server');
 
 // Types matching the API response
 export interface DashboardProject {
@@ -108,7 +108,7 @@ export async function getClientProjects(): Promise<{
           status: true,
           submittedAt: true,
           lockedAt: true,
-          questionnaire_templates: {
+          template: {
             select: {
               questions: {
                 select: {
@@ -137,8 +137,8 @@ export async function getClientProjects(): Promise<{
       workflow_snapshots: {
         where: { isCurrent: true },
         include: {
-          workflow_snapshot_progress: true as any, // Type assertion for Prisma relation
-          workflow_snapshot_phases: {
+          progress: true as any, // Type assertion for Prisma relation
+          phases: {
             include: {
               workflow_snapshot_tasks: true,
             },
@@ -164,18 +164,15 @@ export async function getClientProjects(): Promise<{
     if (latestSubmission) {
       // Defensive calculation with null checks
       const totalQuestions = (() => {
-        if (!latestSubmission.questionnaire_templates) {
-          console.warn(
-            'No questionnaire_templates found for project submission:',
-            latestSubmission.id
-          );
+        if (!latestSubmission.template) {
+          console.warn('No template found for project submission:', latestSubmission.id);
           return 0;
         }
-        if (!Array.isArray(latestSubmission.questionnaire_templates.questions)) {
+        if (!Array.isArray(latestSubmission.template.questions)) {
           console.warn('Invalid questions array for project submission:', latestSubmission.id);
           return 0;
         }
-        return latestSubmission.questionnaire_templates.questions.length;
+        return latestSubmission.template.questions.length;
       })();
 
       const answeredQuestions = Array.isArray(latestSubmission.answers)
@@ -196,9 +193,8 @@ export async function getClientProjects(): Promise<{
     // Workflow progress
     const currentSnapshot = (project as any).workflow_snapshots?.[0];
     let workflowProgress = null;
-    if (currentSnapshot?.workflow_snapshot_progress) {
-      const { totalTasks, completedTasks, perPhase } =
-        currentSnapshot.workflow_snapshot_progress as any;
+    if (currentSnapshot?.progress) {
+      const { totalTasks, completedTasks, perPhase } = currentSnapshot.progress as any;
 
       // Calculate phase breakdown from perPhase data
       let phaseBreakdown = null;
@@ -275,7 +271,7 @@ export async function getProjectById(projectId: string): Promise<ProjectDetail> 
           status: true,
           submittedAt: true,
           lockedAt: true,
-          questionnaire_templates: {
+          template: {
             select: {
               questions: {
                 select: {
@@ -306,8 +302,8 @@ export async function getProjectById(projectId: string): Promise<ProjectDetail> 
       workflow_snapshots: {
         where: { isCurrent: true },
         include: {
-          workflow_snapshot_progress: true as any, // Type assertion for Prisma relation
-          workflow_snapshot_phases: {
+          progress: true as any, // Type assertion for Prisma relation
+          phases: {
             include: {
               workflow_snapshot_tasks: true,
             },
@@ -328,7 +324,7 @@ export async function getProjectById(projectId: string): Promise<ProjectDetail> 
   if (latestSubmission) {
     try {
       // Defensive calculation with proper property name and null checks
-      const totalQuestions = latestSubmission?.questionnaire_templates?.questions?.length || 0;
+      const totalQuestions = latestSubmission?.template?.questions?.length || 0;
       const answeredQuestions = Array.isArray(latestSubmission.answers)
         ? latestSubmission.answers.length
         : 0;
@@ -338,8 +334,8 @@ export async function getProjectById(projectId: string): Promise<ProjectDetail> 
         console.warn('Project has submission but no questions:', {
           projectId,
           submissionId: latestSubmission.id,
-          hasTemplate: !!latestSubmission.questionnaire_templates,
-          templateId: latestSubmission.questionnaire_templates?.id,
+          hasTemplate: !!latestSubmission.template,
+          templateId: latestSubmission.template?.id,
         });
       }
 
@@ -385,9 +381,8 @@ export async function getProjectById(projectId: string): Promise<ProjectDetail> 
   // Build workflow snapshot data
   const currentSnapshot = (project as any).workflow_snapshots?.[0];
   let workflowSnapshot = null;
-  if (currentSnapshot?.workflow_snapshot_progress) {
-    const { totalTasks, completedTasks, perPhase } =
-      currentSnapshot.workflow_snapshot_progress as any;
+  if (currentSnapshot?.progress) {
+    const { totalTasks, completedTasks, perPhase } = currentSnapshot.progress as any;
 
     // Calculate phase breakdown from perPhase data
     let phaseBreakdown = null;

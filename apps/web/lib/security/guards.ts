@@ -37,11 +37,14 @@ export function withAuthGuard<T = { userId: string; role: 'CLIENT' | 'ADMIN'; te
   handler: GuardedHandler<T>,
   options: GuardOptions = {}
 ) {
-  return async (request: NextRequest, { params }: { params: any }): Promise<NextResponse> => {
+  return async (
+    request: NextRequest,
+    { params }: { params: Promise<any> | any }
+  ): Promise<NextResponse> => {
     try {
       // Get user context from headers (injected by proxy)
       const userId = request.headers.get('x-user-id');
-      const userRole = request.headers.get('x-user-role') as 'CLIENT' | 'ADMIN';
+      const userRole = (request.headers.get('x-user-role') as 'CLIENT' | 'ADMIN') || 'CLIENT';
       const tenantId = request.headers.get('x-tenant-id');
 
       if (!userId || !userRole || !tenantId) {
@@ -60,8 +63,11 @@ export function withAuthGuard<T = { userId: string; role: 'CLIENT' | 'ADMIN'; te
 
       const context = { userId, role: userRole, tenantId } as T;
 
+      // Ensure params is resolved (Next.js 15+ requirement)
+      const resolvedParams = params instanceof Promise ? await params : params;
+
       // Execute the handler with validated context and params
-      return await handler(request, context, params);
+      return await handler(request, context, resolvedParams);
     } catch (error) {
       console.error('API guard error:', error);
       return apiErrors.internalError('An unexpected error occurred');

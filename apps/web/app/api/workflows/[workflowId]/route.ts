@@ -29,7 +29,7 @@ export const GET = guards.adminOnly(async (request, context, params) => {
           include: {
             tasks: {
               include: {
-                users_tasks_assigneeIdTousers: {
+                assignee: {
                   select: {
                     id: true,
                     firstName: true,
@@ -62,10 +62,7 @@ export const GET = guards.adminOnly(async (request, context, params) => {
     // Get dependencies for computation
     const dependencies = await prisma.task_dependencies.findMany({
       where: {
-        OR: [
-          { tasks_task_dependencies_fromTaskIdTotasks: { phases: { workflowId } } },
-          { tasks_task_dependencies_toTaskIdTotasks: { phases: { workflowId } } },
-        ],
+        OR: [{ fromTask: { phases: { workflowId } } }, { toTask: { phases: { workflowId } } }],
       },
       select: { fromTaskId: true, toTaskId: true },
     });

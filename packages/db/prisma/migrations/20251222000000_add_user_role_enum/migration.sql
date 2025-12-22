@@ -13,3 +13,4 @@ UPDATE "users" SET "role" = 'CLIENT' WHERE "role" IS NOT NULL;
 
 
 
+

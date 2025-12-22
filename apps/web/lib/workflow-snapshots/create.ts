@@ -97,10 +97,7 @@ export async function createWorkflowSnapshot(
 
       const taskDependencies = await tx.task_dependencies.findMany({
         where: {
-          OR: [
-            { tasks_task_dependencies_fromTaskIdTotasks: { phases: { workflowId } } },
-            { tasks_task_dependencies_toTaskIdTotasks: { phases: { workflowId } } },
-          ],
+          OR: [{ fromTask: { phases: { workflowId } } }, { toTask: { phases: { workflowId } } }],
         },
         select: { fromTaskId: true, toTaskId: true },
       });
@@ -203,7 +200,7 @@ export async function getCurrentSnapshot(tenantId: string, projectId: string) {
       isCurrent: true,
     },
     include: {
-      workflow_snapshot_phases: {
+      phases: {
         include: {
           workflow_snapshot_tasks: {
             orderBy: { order: 'asc' },
@@ -211,7 +208,7 @@ export async function getCurrentSnapshot(tenantId: string, projectId: string) {
         },
         orderBy: { order: 'asc' },
       },
-      workflow_snapshot_progress: true,
+      progress: true,
     },
   });
 }

@@ -28,10 +28,10 @@ export const GET = guards.authenticated(async (request, context, params) => {
         ...(status && { status }),
       },
       include: {
-        questionnaire_templates: {
+        template: {
           select: { id: true, name: true, version: true, isActive: true },
         },
-        projects: {
+        project: {
           select: { id: true, name: true },
         },
         _count: {
@@ -104,10 +104,10 @@ export const POST = guards.authenticated(async (request, context, params) => {
         updatedAt: new Date(),
       },
       include: {
-        questionnaire_templates: {
+        template: {
           select: { id: true, name: true, version: true },
         },
-        projects: {
+        project: {
           select: { id: true, name: true },
         },
       },
@@ -144,7 +144,7 @@ export const PATCH = guards.authenticated(async (request, context, params) => {
         status: 'DRAFT', // Only allow editing drafts
       },
       include: {
-        questionnaire_templates: {
+        template: {
           include: {
             questions: {
               orderBy: { order: 'asc' },
@@ -153,7 +153,7 @@ export const PATCH = guards.authenticated(async (request, context, params) => {
         },
         answers: {
           include: {
-            questions: true,
+            question: true,
           },
         },
       },
@@ -164,7 +164,7 @@ export const PATCH = guards.authenticated(async (request, context, params) => {
     }
 
     // Verify question belongs to template
-    const question = submission.questionnaire_templates.questions.find(
+    const question = submission.template.questions.find(
       (q: any) => q.id === validatedData.questionId
     );
     if (!question) {

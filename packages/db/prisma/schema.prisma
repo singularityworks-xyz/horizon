@@ -70,9 +70,9 @@ model answers {
   submittedAt               DateTime?
   createdAt                 DateTime                  @default(now())
   updatedAt                 DateTime
-  projects                  projects?                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  questions                 questions                 @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionnaire_submissions questionnaire_submissions @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  project                   projects?                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  question                  questions                 @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  submission                questionnaire_submissions @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   tenants                   tenants                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   assets                    assets[]
 
@@ -145,6 +145,7 @@ model phases {
   description      String?
   order            Int
   status           PhaseStatus    @default(PENDING)
+  progress         Float          @default(0)
   startDate        DateTime?
   endDate          DateTime?
   source           WorkflowSource @default(MANUAL)
@@ -179,6 +180,7 @@ model projects {
   name                      String
   description               String?
   status                    ProjectStatus               @default(DRAFT)
+  progress                  Float                       @default(0)
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime
   ai_workflow_generations   ai_workflow_generations[]
@@ -206,8 +208,8 @@ model questionnaire_submissions {
   updatedAt               DateTime
   ai_workflow_generations ai_workflow_generations[]
   answers                 answers[]
-  projects                projects?                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  questionnaire_templates questionnaire_templates   @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  project                 projects?                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  template                questionnaire_templates   @relation(fields: [templateId], references: [id], onDelete: Cascade)
   tenants                 tenants                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, projectId, templateId])
@@ -279,8 +281,8 @@ model task_dependencies {
   id                                        String @id
   fromTaskId                                String
   toTaskId                                  String
-  tasks_task_dependencies_fromTaskIdTotasks tasks  @relation("task_dependencies_fromTaskIdTotasks", fields: [fromTaskId], references: [id], onDelete: Cascade)
-  tasks_task_dependencies_toTaskIdTotasks   tasks  @relation("task_dependencies_toTaskIdTotasks", fields: [toTaskId], references: [id], onDelete: Cascade)
+  fromTask                                  tasks  @relation("task_dependencies_fromTaskIdTotasks", fields: [fromTaskId], references: [id], onDelete: Cascade)
+  toTask                                    tasks  @relation("task_dependencies_toTaskIdTotasks", fields: [toTaskId], references: [id], onDelete: Cascade)
 
   @@unique([fromTaskId, toTaskId])
   @@index([toTaskId])
@@ -293,6 +295,7 @@ model tasks {
   description                                           String?
   order                                                 Int
   status                                                TaskStatus          @default(PENDING)
+  progress                                              Float               @default(0)
   priority                                              Priority            @default(MEDIUM)
   assigneeId                                            String?
   dueDate                                               DateTime?
@@ -307,10 +310,10 @@ model tasks {
   createdAt                                             DateTime            @default(now())
   updatedAt                                             DateTime
   assets                                                assets[]
-  task_dependencies_task_dependencies_fromTaskIdTotasks task_dependencies[] @relation("task_dependencies_fromTaskIdTotasks")
-  task_dependencies_task_dependencies_toTaskIdTotasks   task_dependencies[] @relation("task_dependencies_toTaskIdTotasks")
-  users_tasks_assigneeIdTousers                         users?              @relation("tasks_assigneeIdTousers", fields: [assigneeId], references: [id])
-  users_tasks_lastEditedByIdTousers                     users?              @relation("tasks_lastEditedByIdTousers", fields: [lastEditedById], references: [id])
+  outgoingDependencies                                  task_dependencies[] @relation("task_dependencies_fromTaskIdTotasks")
+  incomingDependencies                                  task_dependencies[] @relation("task_dependencies_toTaskIdTotasks")
+  assignee                                              users?              @relation("tasks_assigneeIdTousers", fields: [assigneeId], references: [id])
+  lastEditedBy                                          users?              @relation("tasks_lastEditedByIdTousers", fields: [lastEditedById], references: [id])
   phases                                                phases              @relation(fields: [phaseId], references: [id], onDelete: Cascade)
 }
 
@@ -359,12 +362,12 @@ model users {
   updatedAt                                 DateTime
   assets                                    assets[]
   phases                                    phases[]
-  tasks_tasks_assigneeIdTousers             tasks[]              @relation("tasks_assigneeIdTousers")
-  tasks_tasks_lastEditedByIdTousers         tasks[]              @relation("tasks_lastEditedByIdTousers")
+  assignedTasks                             tasks[]              @relation("tasks_assigneeIdTousers")
+  editedTasks                               tasks[]              @relation("tasks_lastEditedByIdTousers")
   tenants                                   tenants?             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   workflow_snapshots                        workflow_snapshots[]
-  workflows_workflows_aiApprovedByIdTousers workflows[]          @relation("workflows_aiApprovedByIdTousers")
-  workflows_workflows_lastEditedByIdTousers workflows[]          @relation("workflows_lastEditedByIdTousers")
+  approvedWorkflows                         workflows[]          @relation("workflows_aiApprovedByIdTousers")
+  editedWorkflows                           workflows[]          @relation("workflows_lastEditedByIdTousers")
   userRoles                                 roles[]              @relation("user_roles")
 
   @@unique([tenantId, email])
@@ -427,8 +430,8 @@ model workflow_snapshots {
   timeline                   Json?
   createdAt                  DateTime                    @default(now())
   createdById                String
-  workflow_snapshot_phases   workflow_snapshot_phases[]
-  workflow_snapshot_progress workflow_snapshot_progress?
+  phases                     workflow_snapshot_phases[]
+  progress                   workflow_snapshot_progress?
   users                      users                       @relation(fields: [createdById], references: [id], onDelete: Cascade)
   projects                   projects                    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tenants                    tenants                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -459,8 +462,8 @@ model workflows {
   assets                                assets[]
   phases                                phases[]
   workflow_snapshots                    workflow_snapshots[]
-  users_workflows_aiApprovedByIdTousers users?                    @relation("workflows_aiApprovedByIdTousers", fields: [aiApprovedById], references: [id])
-  users_workflows_lastEditedByIdTousers users?                    @relation("workflows_lastEditedByIdTousers", fields: [lastEditedById], references: [id])
+  aiApprovedBy                          users?                    @relation("workflows_aiApprovedByIdTousers", fields: [aiApprovedById], references: [id])
+  lastEditedBy                          users?                    @relation("workflows_lastEditedByIdTousers", fields: [lastEditedById], references: [id])
   projects                              projects                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tenants                               tenants                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 

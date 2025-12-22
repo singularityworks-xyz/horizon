@@ -20,7 +20,7 @@ export const GET = guards.clientAccess(async (request, context, params) => {
             status: true,
             submittedAt: true,
             lockedAt: true,
-            questionnaire_templates: {
+            template: {
               select: {
                 questions: {
                   select: {
@@ -51,8 +51,8 @@ export const GET = guards.clientAccess(async (request, context, params) => {
         workflow_snapshots: {
           where: { isCurrent: true },
           include: {
-            workflow_snapshot_progress: true,
-            workflow_snapshot_phases: {
+            progress: true,
+            phases: {
               include: {
                 workflow_snapshot_tasks: true,
               },
@@ -73,7 +73,7 @@ export const GET = guards.clientAccess(async (request, context, params) => {
     if (latestSubmission) {
       try {
         // Defensive calculation with proper property name and null checks
-        const totalQuestions = latestSubmission?.questionnaire_templates?.questions?.length || 0;
+        const totalQuestions = latestSubmission?.template?.questions?.length || 0;
         const answeredQuestions = Array.isArray(latestSubmission.answers)
           ? latestSubmission.answers.length
           : 0;
@@ -83,8 +83,8 @@ export const GET = guards.clientAccess(async (request, context, params) => {
           console.warn('Project has submission but no questions:', {
             projectId: id,
             submissionId: latestSubmission.id,
-            hasTemplate: !!latestSubmission.questionnaire_templates,
-            templateId: latestSubmission.questionnaire_templates?.id,
+            hasTemplate: !!latestSubmission.template,
+            templateId: latestSubmission.template?.id,
           });
         }
 
@@ -127,9 +127,8 @@ export const GET = guards.clientAccess(async (request, context, params) => {
     // Build workflow snapshot data
     const currentSnapshot = (project as any).workflow_snapshots?.[0];
     let workflowSnapshot = null;
-    if (currentSnapshot?.workflow_snapshot_progress) {
-      const { totalTasks, completedTasks, perPhase } =
-        currentSnapshot.workflow_snapshot_progress as any;
+    if (currentSnapshot?.progress) {
+      const { totalTasks, completedTasks, perPhase } = currentSnapshot.progress as any;
 
       // Calculate phase breakdown from perPhase data
       let phaseBreakdown = null;
