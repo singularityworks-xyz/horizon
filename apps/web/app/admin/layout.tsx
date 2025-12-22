@@ -10,13 +10,11 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
     redirect('/auth/login');
   }
 
-  // Double check role from DB for security
-  const user = await prisma.users.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  // Check role from session
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userRole = (session.user as any).role;
 
-  if (!user || user.role !== 'ADMIN') {
+  if (userRole !== 'ADMIN') {
     // If authenticated but not admin, redirect to client dashboard or home
     redirect('/dashboard');
   }

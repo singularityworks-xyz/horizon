@@ -1,41 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { authClient } from '@/lib/auth-client';
 import { LogoutButton } from '@/components/auth/logout-button';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<{
-    email: string;
-    role: string;
-  } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
 
-  useEffect(() => {
-    // Get user info from cookies/headers set by proxy
-    const userEmail = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('user-email='))
-      ?.split('=')[1];
-
-    const userRole = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('user-role='))
-      ?.split('=')[1];
-
-    if (userEmail && userRole === 'ADMIN') {
-      setUserInfo({ email: decodeURIComponent(userEmail), role: userRole });
-    } else {
-      // If not admin or no user info, redirect appropriately
-      router.push('/auth/login');
-      return;
-    }
-
-    setIsLoading(false);
-  }, [router]);
-
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
@@ -43,7 +17,8 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (!userInfo) {
+  if (!user) {
+    router.push('/auth/login' as any);
     return null;
   }
 
@@ -52,17 +27,24 @@ export default function AdminDashboardPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
-            Admin Control Plane
-          </h1>
-          <p className="text-muted-foreground">
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase">
+              Control Plane
+            </h1>
+            <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+              Admin
+            </span>
+          </div>
+          <p className="text-muted-foreground font-mono text-sm tracking-tight opacity-70">
             Manage projects, oversee client progress, and maintain system health.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right hidden md:block">
-            <p className="text-sm font-medium text-foreground">{userInfo.email}</p>
-            <p className="text-xs text-muted-foreground">{userInfo.role}</p>
+            <p className="text-sm font-medium text-foreground">{user.email}</p>
+            <p className="text-xs text-muted-foreground uppercase font-bold tracking-tighter opacity-50">
+              {(user as any).role}
+            </p>
           </div>
           <LogoutButton className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors" />
         </div>
@@ -144,10 +126,10 @@ export default function AdminDashboardPage() {
             </h4>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">
-                Email: <span className="text-foreground font-medium">{userInfo.email}</span>
+                Email: <span className="text-foreground font-medium">{user.email}</span>
               </p>
               <p className="text-sm text-muted-foreground">
-                Role: <span className="text-foreground font-medium">{userInfo.role}</span>
+                Role: <span className="text-foreground font-medium">{(user as any).role}</span>
               </p>
             </div>
           </div>

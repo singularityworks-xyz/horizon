@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { authHelpers } from '@/lib/auth-client';
+import { authHelpers, authClient } from '@/lib/auth-client';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -25,11 +26,24 @@ export default function LoginPage() {
 
       if (result.error) {
         setError(result.error.message || 'Login failed');
+        toast.error(result.error.message || 'Login failed');
         return;
       }
 
-      // Redirect to dashboard on success
-      router.push('/dashboard');
+      // Important: refresh router to update session/cookies
+      router.refresh();
+
+      // Check role for tailored experience
+      const session = await authClient.getSession();
+      const role = (session.data?.user as any)?.role;
+
+      if (role === 'ADMIN') {
+        toast.success('Admin login successful! Redirecting to control plane...');
+        router.push('/admin/dashboard' as any);
+      } else {
+        toast.success('Successfully logged in!');
+        router.push('/dashboard' as any);
+      }
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {

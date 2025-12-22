@@ -344,6 +344,7 @@ model user {
   emailVerified Boolean   @default(false)
   name          String
   image         String?
+  role          UserRole  @default(CLIENT)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime
   account       account[]

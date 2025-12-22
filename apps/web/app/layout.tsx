@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Source_Code_Pro } from 'next/font/google';
 import './globals.css';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const sourceCodePro = Source_Code_Pro({ subsets: ['latin'], variable: '--font-mono' });
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${inter.variable} ${sourceCodePro.variable} font-sans antialiased`}>
         <main>{children}</main>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );
