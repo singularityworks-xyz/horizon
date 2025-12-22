@@ -26,6 +26,8 @@ export const auth = betterAuth({
     'http://127.0.0.1:3000',
     'https://localhost:3000',
     'https://127.0.0.1:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
   ],
   // Enable advanced security features but be more permissive in development
   advanced: {
@@ -37,7 +39,9 @@ export const auth = betterAuth({
       sameSite: 'lax',
     },
   },
-  baseURL: env.BETTER_AUTH_URL,
+  baseURL: env.BETTER_AUTH_URL.endsWith('/api/auth')
+    ? env.BETTER_AUTH_URL
+    : `${env.BETTER_AUTH_URL}/api/auth`,
   secret: env.BETTER_AUTH_SECRET,
 
   // Hooks to link new users to the default tenant
