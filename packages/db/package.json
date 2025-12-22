@@ -4,15 +4,15 @@
   "private": true,
   "description": "Database schema, migrations, and client configuration for Horizon",
   "dependencies": {
-    "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.0",
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
     "dotenv": "^17.2.3",
     "pg": "^8.11.0"
   },
   "devDependencies": {
     "@types/pg": "^8.11.0",
     "dotenv-cli": "^11.0.0",
-    "prisma": "^7.0.0",
+    "prisma": "^7.2.0",
     "tsx": "^4.21.0"
   },
   "main": "./src/index.ts",

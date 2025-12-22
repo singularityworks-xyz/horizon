@@ -64,22 +64,22 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-white overflow-hidden">
+    <div className="min-h-screen flex flex-col md:flex-row bg-background overflow-hidden font-sans text-foreground">
       {/* Visual Side (Hidden on mobile) */}
-      <div className="hidden md:flex md:w-1/2 bg-black items-center justify-center p-12 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-full h-full border-[1px] border-white/10 [mask-image:linear-gradient(to_bottom,black,transparent)]"></div>
+      <div className="hidden md:flex md:w-1/2 bg-primary items-center justify-center p-12 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full border-[1px] border-white/20 [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
           <div className="absolute top-0 left-0 w-full h-full grid grid-cols-10 gap-0">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="border-r border-white/10 h-full"></div>
+              <div key={i} className="border-r border-white/20 h-full"></div>
             ))}
           </div>
         </div>
-        <div className="z-10 max-w-md text-white">
-          <h2 className="text-5xl font-bold tracking-tighter mb-6">
+        <div className="z-10 max-w-md text-primary-foreground">
+          <h2 className="text-5xl font-bold tracking-tighter mb-6 selection:bg-white/30 selection:text-white">
             Join the <br /> Horizon ecosystem.
           </h2>
-          <p className="text-gray-400 text-lg leading-relaxed">
+          <p className="text-primary-foreground/80 text-lg leading-relaxed selection:bg-white/30 selection:text-white">
             Experience the most streamlined project execution platform ever built. Fast onboarding,
             crystal clear tracking, and reliable delivery.
           </p>
@@ -87,20 +87,27 @@ export default function SignupPage() {
       </div>
 
       {/* Form Side */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white overflow-y-auto">
-        <div className="max-w-md w-full space-y-10 py-12">
+      <div className="flex-1 flex items-center justify-center p-8 bg-background overflow-y-auto">
+        <div className="max-w-md w-full space-y-8 bg-card p-10 rounded-2xl shadow-sm border border-border my-8">
           <div>
-            <Link href="/" className="text-2xl font-black tracking-tighter mb-12 block md:hidden">
+            <Link
+              href="/"
+              className="text-2xl font-black tracking-tighter mb-8 block md:hidden text-primary"
+            >
               HORIZON
             </Link>
-            <h1 className="text-3xl font-bold tracking-tight text-black mb-2">Create account</h1>
-            <p className="text-gray-500">Join our platform and start your first project today</p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">
+              Create account
+            </h1>
+            <p className="text-muted-foreground">
+              Join our platform and start your first project today
+            </p>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                <label htmlFor="firstName" className="text-sm font-medium text-foreground">
                   First Name
                 </label>
                 <input
@@ -108,14 +115,14 @@ export default function SignupPage() {
                   name="firstName"
                   type="text"
                   required
-                  className="block w-full px-4 py-3 bg-gray-50 border border-transparent rounded-lg text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all"
+                  className="block w-full px-4 py-3 bg-secondary/30 border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all font-sans"
                   placeholder="Jane"
                   value={formData.firstName}
                   onChange={handleChange}
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                <label htmlFor="lastName" className="text-sm font-medium text-foreground">
                   Last Name
                 </label>
                 <input
@@ -123,7 +130,7 @@ export default function SignupPage() {
                   name="lastName"
                   type="text"
                   required
-                  className="block w-full px-4 py-3 bg-gray-50 border border-transparent rounded-lg text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all"
+                  className="block w-full px-4 py-3 bg-secondary/30 border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all font-sans"
                   placeholder="Doe"
                   value={formData.lastName}
                   onChange={handleChange}
@@ -132,7 +139,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="text-sm font-medium text-foreground">
                 Email
               </label>
               <input
@@ -141,7 +148,7 @@ export default function SignupPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="block w-full px-4 py-3 bg-gray-50 border border-transparent rounded-lg text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all"
+                className="block w-full px-4 py-3 bg-secondary/30 border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all font-sans"
                 placeholder="jane@example.com"
                 value={formData.email}
                 onChange={handleChange}
@@ -152,7 +159,7 @@ export default function SignupPage() {
               <label
                 htmlFor="password"
                 title="Password must be at least 6 characters"
-                className="text-sm font-medium text-gray-700 font-bold underline decoration-gray-400 underline-offset-4 cursor-help"
+                className="text-sm font-medium text-foreground font-bold underline decoration-muted-foreground/50 underline-offset-4 cursor-help"
               >
                 Password
               </label>
@@ -162,7 +169,7 @@ export default function SignupPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="block w-full px-4 py-3 bg-gray-50 border border-transparent rounded-lg text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all"
+                className="block w-full px-4 py-3 bg-secondary/30 border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all font-sans"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
@@ -170,7 +177,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+              <label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
                 Confirm Password
               </label>
               <input
@@ -179,7 +186,7 @@ export default function SignupPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="block w-full px-4 py-3 bg-gray-50 border border-transparent rounded-lg text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:bg-white transition-all"
+                className="block w-full px-4 py-3 bg-secondary/30 border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:bg-background transition-all font-sans"
                 placeholder="••••••••"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -187,7 +194,7 @@ export default function SignupPage() {
             </div>
 
             {error && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
                 {error}
               </div>
             )}
@@ -195,7 +202,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-primary/20"
             >
               {isLoading ? (
                 <>
@@ -208,11 +215,11 @@ export default function SignupPage() {
             </button>
 
             <div className="text-center">
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-muted-foreground">
                 Already have an account?{' '}
                 <Link
                   href={'/auth/login' as any}
-                  className="font-semibold text-black hover:underline"
+                  className="font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
                   Sign in
                 </Link>

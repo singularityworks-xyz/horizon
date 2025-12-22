@@ -2,26 +2,42 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(222.2 84% 4.9%);
+  /* Soft Canvas #F8FAFC */
+  --color-background: hsl(210 40% 98%);
+  /* Ink Black #0B1220 */
+  --color-foreground: hsl(220 49% 8%);
+
+  /* Pure White #FFFFFF */
   --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222.2 84% 4.9%);
+  --color-card-foreground: hsl(220 49% 8%);
+
   --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(222.2 84% 4.9%);
-  --color-primary: hsl(222.2 47.4% 11.2%);
-  --color-primary-foreground: hsl(210 40% 98%);
+  --color-popover-foreground: hsl(220 49% 8%);
+
+  /* Royal Blue #2563EB */
+  --color-primary: hsl(221 83% 53%);
+  --color-primary-foreground: hsl(0 0% 100%);
+
+  /* Soft Slate - used for secondary actions */
   --color-secondary: hsl(210 40% 96.1%);
   --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+
+  /* Muted Indigo #6366F1 - Accent */
   --color-muted: hsl(210 40% 96.1%);
-  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-accent: hsl(210 40% 96.1%);
-  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
+  --color-muted-foreground: hsl(215 25% 27%); /* Slate Medium */
+
+  --color-accent: hsl(239 84% 67%);
+  --color-accent-foreground: hsl(0 0% 100%);
+
   --color-destructive: hsl(0 84.2% 60.2%);
   --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(222.2 84% 4.9%);
+
+  /* Slate Light #CBD5E1 */
+  --color-border: hsl(213 27% 84%);
+  --color-input: hsl(213 27% 84%);
+  --color-ring: hsl(221 83% 53%); /* Match primary */
 
   --radius-lg: 0.5rem;
   --radius-md: calc(0.5rem - 2px);

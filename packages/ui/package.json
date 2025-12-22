@@ -10,7 +10,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/index.css"
+    "./styles.css": "./dist/index.css",
+    "./tailwind.config.js": "./tailwind.config.js"
   },
   "scripts": {
     "build": "tsc && mkdir -p dist && cp src/index.css dist/index.css",
