@@ -2,6 +2,7 @@ import { authServer } from '@/lib/auth-server';
 import { prisma } from '@horizon/db';
 import { redirect } from 'next/navigation';
 import React from 'react';
+import { Sidebar } from '@/components/admin/sidebar';
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await authServer.getSession();
@@ -19,5 +20,15 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
     redirect('/dashboard');
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-background p-6">
+      <div className="flex gap-6 max-w-[1600px] mx-auto">
+        {/* Sidebar */}
+        <Sidebar />
+
+        {/* Main Content */}
+        <main className="flex-1 min-w-0">{children}</main>
+      </div>
+    </div>
+  );
 }

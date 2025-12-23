@@ -17,10 +17,12 @@ export function LogoutButton({ className, children }: LogoutButtonProps) {
     try {
       setIsLoading(true);
       await authHelpers.signOut();
-      router.push('/auth/login');
-      router.refresh();
+      // Use window.location.href to force a full page reload and clear any client-side state
+      window.location.href = '/auth/login';
     } catch (error) {
       console.error('Logout failed:', error);
+      // Fallback redirect even if signOut API fails
+      window.location.href = '/auth/login';
     } finally {
       setIsLoading(false);
     }

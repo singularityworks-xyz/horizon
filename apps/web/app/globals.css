@@ -1,55 +1,100 @@
 @import "tailwindcss";
 
+@layer base {
+  :root {
+    /* CSS Variables for legacy configuration compatibility (HSL values) */
+    /* Background: Deep Black #000000 */
+    --background: 0 0% 0%;
+    /* Foreground: #F6F3F3 */
+    --foreground: 0 12% 96%;
+
+    /* Card: Dark Gray #111111 for visibility on black */
+    --card: 0 0% 7%;
+    --card-foreground: 0 12% 96%;
+
+    /* Popover: Same as Card */
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 12% 96%;
+
+    /* Primary: #674EBC */
+    --primary: 254 47% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: #8D86C9 */
+    --secondary: 246 37% 66%;
+    --secondary-foreground: 0 0% 0%;
+
+    /* Muted: Dark gray container */
+    --muted: 0 0% 7%;
+    --muted-foreground: 274 8% 84%;
+    /* #D7D3DA */
+
+    /* Accent: #8D86C9 */
+    --accent: 246 37% 66%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border: Dark gray */
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 254 47% 52%;
+
+    --radius-lg: 1rem;
+    --radius-md: calc(1rem - 2px);
+    --radius-sm: calc(1rem - 4px);
+
+    --radius: 0.5rem;
+  }
+}
+
 @theme {
+  /* Tailwind v4 native theme definitions */
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Soft Canvas #F8FAFC */
-  --color-background: hsl(210 40% 98%);
-  /* Ink Black #0B1220 */
-  --color-foreground: hsl(220 49% 8%);
+  --color-background: hsl(0 0% 0%);
+  --color-foreground: hsl(0 12% 96%);
 
-  /* Pure White #FFFFFF */
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(220 49% 8%);
+  --color-card: hsl(0 0% 7%);
+  --color-card-foreground: hsl(0 12% 96%);
 
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(220 49% 8%);
+  --color-popover: hsl(0 0% 7%);
+  --color-popover-foreground: hsl(0 12% 96%);
 
-  /* Royal Blue #2563EB */
-  --color-primary: hsl(221 83% 53%);
+  --color-primary: hsl(254 47% 52%);
   --color-primary-foreground: hsl(0 0% 100%);
 
-  /* Soft Slate - used for secondary actions */
-  --color-secondary: hsl(210 40% 96.1%);
-  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --color-secondary: hsl(246 37% 66%);
+  --color-secondary-foreground: hsl(0 0% 0%);
 
-  /* Muted Indigo #6366F1 - Accent */
-  --color-muted: hsl(210 40% 96.1%);
-  --color-muted-foreground: hsl(215 25% 27%); /* Slate Medium */
+  --color-muted: hsl(0 0% 7%);
+  --color-muted-foreground: hsl(274 8% 84%);
 
-  --color-accent: hsl(239 84% 67%);
-  --color-accent-foreground: hsl(0 0% 100%);
+  --color-accent: hsl(246 37% 66%);
+  --color-accent-foreground: hsl(0 0% 0%);
 
   --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-destructive-foreground: hsl(0 0% 100%);
 
-  /* Slate Light #CBD5E1 */
-  --color-border: hsl(213 27% 84%);
-  --color-input: hsl(213 27% 84%);
-  --color-ring: hsl(221 83% 53%); /* Match primary */
+  --color-border: hsl(0 0% 12%);
+  --color-input: hsl(0 0% 12%);
+  --color-ring: hsl(254 47% 52%);
 
-  --radius-lg: 0.5rem;
-  --radius-md: calc(0.5rem - 2px);
-  --radius-sm: calc(0.5rem - 4px);
+  --radius-lg: 1rem;
+  --radius-md: calc(1rem - 2px);
+  --radius-sm: calc(1rem - 4px);
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--color-border);
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
