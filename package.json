@@ -16,7 +16,9 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:generate": "bun --filter=@horizon/db prisma:generate",
+    "postinstall": "bun run db:generate"
   },
   "workspaces": [
     "apps/*",
