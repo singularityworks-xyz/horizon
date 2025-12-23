@@ -23,9 +23,9 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    // SECURITY: Email verification required in production
-    requireEmailVerification: process.env.NODE_ENV === 'production',
-    // Don't auto sign-in unverified users
+    // Email verification disabled for all environments
+    requireEmailVerification: false,
+    // Don't auto sign-in newly registered users in production
     autoSignIn: process.env.NODE_ENV !== 'production',
   },
   session: {
