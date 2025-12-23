@@ -1,7 +1,24 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { validateUserHasTenantAccess } from './tenant';
 
-// Simplified guard types (proxy handles auth)
-export type GuardedHandler<T = { userId: string; role: 'CLIENT' | 'ADMIN'; tenantId: string }> = (
+// SECURITY: Session-validated user context - NEVER trust client headers for auth
+export type AuthenticatedContext = {
+  userId: string;
+  role: 'CLIENT' | 'ADMIN';
+  tenantId: string;
+  tenant: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  session: {
+    id: string;
+    expiresAt: Date;
+  };
+};
+
+export type GuardedHandler<T = AuthenticatedContext> = (
   request: NextRequest,
   context: T,
   params: any
@@ -32,8 +49,20 @@ export const apiErrors = {
     NextResponse.json({ error: 'Not Found', message, code: 'NOT_FOUND' }, { status: 404 }),
 };
 
-// Simplified guard wrapper - proxy injects user context via headers
-export function withAuthGuard<T = { userId: string; role: 'CLIENT' | 'ADMIN'; tenantId: string }>(
+/**
+ * SECURITY: Session-based authentication guard
+ *
+ * This function validates authentication through Better Auth session cookies,
+ * NOT client headers. Headers can be forged - sessions cannot.
+ *
+ * Flow:
+ * 1. Validate session cookie via Better Auth
+ * 2. Fetch user data from database using session.user.id
+ * 3. Validate tenant access through database relationships
+ * 4. Verify role requirements
+ * 5. Return validated context or throw 401/403
+ */
+export function withAuthGuard<T = AuthenticatedContext>(
   handler: GuardedHandler<T>,
   options: GuardOptions = {}
 ) {
@@ -42,31 +71,55 @@ export function withAuthGuard<T = { userId: string; role: 'CLIENT' | 'ADMIN'; te
     { params }: { params: Promise<any> | any }
   ): Promise<NextResponse> => {
     try {
-      // Get user context from headers (injected by proxy)
-      const userId = request.headers.get('x-user-id');
-      const userRole = (request.headers.get('x-user-role') as 'CLIENT' | 'ADMIN') || 'CLIENT';
-      const tenantId = request.headers.get('x-tenant-id');
+      // STEP 1: Validate session from cookie (NOT headers)
+      const session = await auth.api.getSession({
+        headers: Object.fromEntries(request.headers.entries()),
+      });
 
-      if (!userId || !userRole || !tenantId) {
+      if (!session?.user) {
+        console.warn('Authentication failed: No valid session');
         return apiErrors.unauthorized('Authentication required');
       }
 
-      // Check role requirements
+      // STEP 2: Validate tenant access from database
+      let tenantContext;
+      try {
+        tenantContext = await validateUserHasTenantAccess(session.user.id);
+      } catch (error) {
+        console.error('Tenant access validation failed:', error);
+        return apiErrors.forbidden('No tenant access or tenant not found');
+      }
+
+      // STEP 3: Check role requirements
       if (options.requiredRoles && options.requiredRoles.length > 0) {
+        const userRole = tenantContext.role.toUpperCase() as 'CLIENT' | 'ADMIN';
         if (!options.requiredRoles.includes(userRole)) {
+          console.warn(
+            `Role check failed: Required ${options.requiredRoles.join(', ')}, got ${userRole}`
+          );
           return apiErrors.forbidden(
-            `Access denied. Required roles: ${options.requiredRoles.join(', ')}. Your role: ${userRole}`,
+            `Access denied. Required roles: ${options.requiredRoles.join(', ')}`,
             'INSUFFICIENT_ROLE'
           );
         }
       }
 
-      const context = { userId, role: userRole, tenantId } as T;
+      // STEP 4: Build validated context
+      const context = {
+        userId: session.user.id,
+        role: tenantContext.role.toUpperCase() as 'CLIENT' | 'ADMIN',
+        tenantId: tenantContext.tenantId,
+        tenant: tenantContext.tenant,
+        session: {
+          id: session.session.id,
+          expiresAt: new Date(session.session.expiresAt),
+        },
+      } as T;
 
       // Ensure params is resolved (Next.js 15+ requirement)
       const resolvedParams = params instanceof Promise ? await params : params;
 
-      // Execute the handler with validated context and params
+      // STEP 5: Execute handler with validated context
       return await handler(request, context, resolvedParams);
     } catch (error) {
       console.error('API guard error:', error);
@@ -77,20 +130,26 @@ export function withAuthGuard<T = { userId: string; role: 'CLIENT' | 'ADMIN'; te
 
 // Convenience guards for common patterns
 export const guards = {
-  // Admin-only access
-  adminOnly: <T extends { userId: string; role: 'ADMIN'; tenantId: string }>(
-    handler: GuardedHandler<T>
-  ) => withAuthGuard(handler, { requiredRoles: ['ADMIN'] }),
+  /**
+   * Admin-only access
+   * Validates session and requires ADMIN role
+   */
+  adminOnly: <T extends AuthenticatedContext>(handler: GuardedHandler<T>) =>
+    withAuthGuard(handler, { requiredRoles: ['ADMIN'] }),
 
-  // Client access (admin can also access client routes)
-  clientAccess: <T extends { userId: string; role: 'CLIENT' | 'ADMIN'; tenantId: string }>(
-    handler: GuardedHandler<T>
-  ) => withAuthGuard(handler, { requiredRoles: ['CLIENT', 'ADMIN'] }),
+  /**
+   * Client access (admins can also access client routes)
+   * Validates session and requires CLIENT or ADMIN role
+   */
+  clientAccess: <T extends AuthenticatedContext>(handler: GuardedHandler<T>) =>
+    withAuthGuard(handler, { requiredRoles: ['CLIENT', 'ADMIN'] }),
 
-  // Authenticated access (any role)
-  authenticated: <T extends { userId: string; role: 'CLIENT' | 'ADMIN'; tenantId: string }>(
-    handler: GuardedHandler<T>
-  ) => withAuthGuard(handler),
+  /**
+   * Authenticated access (any role)
+   * Validates session but allows any role
+   */
+  authenticated: <T extends AuthenticatedContext>(handler: GuardedHandler<T>) =>
+    withAuthGuard(handler),
 };
 
 // Helper to create tenant-scoped database queries

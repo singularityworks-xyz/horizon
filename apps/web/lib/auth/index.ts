@@ -23,13 +23,18 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    // SECURITY: Email verification required in production
+    requireEmailVerification: process.env.NODE_ENV === 'production',
+    // Don't auto sign-in unverified users
+    autoSignIn: process.env.NODE_ENV !== 'production',
   },
   session: {
     cookieCache: {
       enabled: true,
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // Update session every 24 hours
   },
   trustedOrigins: [
     'http://localhost:3000',
@@ -39,14 +44,20 @@ export const auth = betterAuth({
     'http://localhost:3001',
     'http://127.0.0.1:3001',
   ],
-  // Enable advanced security features but be more permissive in development
+  // SECURITY: Production-ready cookie configuration
   advanced: {
     crossSubDomainCookies: {
-      enabled: false, // Disable for localhost development
+      enabled: false,
     },
     defaultCookieAttributes: {
-      secure: false, // Allow non-HTTPS in development
-      sameSite: 'lax',
+      // CRITICAL: Use secure cookies in production
+      secure: process.env.NODE_ENV === 'production',
+      // CRITICAL: Use strict sameSite in production to prevent CSRF
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      // CRITICAL: httpOnly prevents XSS attacks
+      httpOnly: true,
+      // Set domain if needed for subdomain support
+      domain: process.env.COOKIE_DOMAIN,
     },
   },
   baseURL: env.BETTER_AUTH_URL.endsWith('/api/auth')

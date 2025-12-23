@@ -1,8 +1,10 @@
 import { prisma } from '@horizon/db';
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { guards } from '@/lib/security/guards';
 
-export const GET = async (request: NextRequest) => {
+// SECURITY: Admin-only endpoint - do NOT expose in production
+export const GET = guards.adminOnly(async (request, context, params) => {
   // Get current session info
   let sessionInfo = null;
   try {
@@ -95,10 +97,11 @@ export const GET = async (request: NextRequest) => {
     envFileExists: true, // If we get here, the app is running
     timestamp: new Date().toISOString(),
   });
-};
+});
 
 // POST endpoint to clear all sessions (for debugging auth issues)
-export const POST = async (request: NextRequest) => {
+// SECURITY: Admin-only endpoint - development only
+export const POST = guards.adminOnly(async (request, context, params) => {
   try {
     // Only allow in development
     if (process.env.NODE_ENV === 'production') {
@@ -125,4 +128,4 @@ export const POST = async (request: NextRequest) => {
       { status: 500 }
     );
   }
-};
+});
