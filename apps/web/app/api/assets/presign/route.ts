@@ -8,7 +8,7 @@ import {
   validateFileSize,
   validateFileType,
 } from '@/lib/assets/validation';
-import { apiErrors, guards } from '@/lib/security/guards';
+import { type AuthenticatedContext, apiErrors, guards } from '@/lib/security/guards';
 import {
   createPresignedUploadUrl,
   generateStorageKey,
@@ -17,9 +17,7 @@ import {
 export const runtime = 'nodejs';
 
 // Context type for asset handlers
-export type AssetContext = {
-  tenantId: string;
-  userId: string;
+export type AssetContext = AuthenticatedContext & {
   role: 'ADMIN';
 };
 

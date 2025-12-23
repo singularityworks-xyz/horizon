@@ -1,13 +1,11 @@
 import { prisma } from '@horizon/db';
 import { type NextRequest, NextResponse } from 'next/server';
-import { apiErrors, guards } from '@/lib/security/guards';
+import { type AuthenticatedContext, apiErrors, guards } from '@/lib/security/guards';
 import { createPresignedDownloadUrl, validateStorageConfig } from '@/lib/storage/r2';
 export const runtime = 'nodejs';
 
 // Context type for asset handlers
-export type AssetContext = {
-  tenantId: string;
-  userId: string;
+export type AssetContext = AuthenticatedContext & {
   role: 'ADMIN';
 };
 

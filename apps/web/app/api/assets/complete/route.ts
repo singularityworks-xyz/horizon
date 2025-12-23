@@ -3,16 +3,14 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { AssetCompleteSchema, AssetPresignSchema } from '@/lib/assets/validation';
 import { scanForViruses, validateScanResult } from '@/lib/assets/virus-scan';
-import { apiErrors, guards } from '@/lib/security/guards';
+import { type AuthenticatedContext, apiErrors, guards } from '@/lib/security/guards';
 import { createPresignedDownloadUrl, validateStorageConfig } from '@/lib/storage/r2';
 export const runtime = 'nodejs';
 
 type AssetPresignData = z.infer<typeof AssetPresignSchema>;
 
 // Context type for asset handlers
-export type AssetContext = {
-  tenantId: string;
-  userId: string;
+export type AssetContext = AuthenticatedContext & {
   role: 'ADMIN';
 };
 
