@@ -117,6 +117,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                         <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg shadow-black/10 py-1 z-10">
                           <Link
                             href={`/admin/dashboard/clients/${client.id}` as any}
+                            prefetch={true}
                             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                             onClick={() => setOpenDropdownId(null)}
                           >
