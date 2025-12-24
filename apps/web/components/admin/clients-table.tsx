@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Search, Eye, Pencil, Ban, MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
 
 interface Client {
   id: string;
@@ -114,10 +115,14 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                       {/* Dropdown Menu */}
                       {openDropdownId === client.id && (
                         <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg shadow-black/10 py-1 z-10">
-                          <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
+                          <Link
+                            href={`/admin/dashboard/clients/${client.id}` as any}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                            onClick={() => setOpenDropdownId(null)}
+                          >
                             <Eye className="w-4 h-4" />
                             View
-                          </button>
+                          </Link>
                           <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors">
                             <Pencil className="w-4 h-4" />
                             Edit
