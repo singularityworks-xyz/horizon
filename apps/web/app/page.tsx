@@ -1,14 +1,16 @@
 import Link from 'next/link';
 import { Sparkles, ArrowRight } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background font-sans text-foreground">
       {/* Navigation */}
-      <nav className="w-full border-b border-border bg-card backdrop-blur-md sticky top-0 z-50">
+      <nav className="w-full border-b border-border bg-background backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="text-xl font-bold tracking-tighter text-foreground">HORIZON</div>
           <div className="flex items-center gap-6">
+            <ThemeToggle />
             <Link
               href="/auth/login"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
