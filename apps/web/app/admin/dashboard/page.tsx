@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
-import { DashboardHeader } from '@/components/admin/dashboard-header';
 import { StatCard } from '@/components/admin/stat-card';
 import { DollarSign, Users, FolderKanban, TrendingUp, Activity } from 'lucide-react';
 
@@ -24,17 +23,8 @@ export default function AdminDashboardPage() {
     return null;
   }
 
-  const userData = {
-    email: user.email,
-    name: user.name,
-    role: (user as any).role,
-  };
-
   return (
     <div className="space-y-8">
-      {/* Dashboard Header */}
-      <DashboardHeader user={userData} />
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard title="Total Revenue" value="$0" icon={DollarSign} iconColor="text-green-400" />

@@ -1,31 +1,16 @@
 import Link from 'next/link';
 import { Sparkles, ArrowRight } from 'lucide-react';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { Navbar } from '@/components/navbar';
+import { authServer } from '@/lib/auth-server';
 
-export default function Home() {
+export default async function Home() {
+  const session = await authServer.getSession();
+  const user = session?.user;
+
   return (
     <div className="min-h-screen flex flex-col bg-background font-sans text-foreground">
       {/* Navigation */}
-      <nav className="w-full border-b border-border bg-background backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="text-xl font-bold tracking-tighter text-foreground">HORIZON</div>
-          <div className="flex items-center gap-6">
-            <ThemeToggle />
-            <Link
-              href="/auth/login"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar user={user} />
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 relative overflow-hidden">
