@@ -1,16 +1,63 @@
-export default function AdminClientsPage() {
+import { redirect } from 'next/navigation';
+import { authServer } from '@/lib/auth-server';
+import { prisma } from '@horizon/db';
+import { ClientsTable } from '@/components/admin/clients-table';
+import { InviteClientButton } from '@/components/admin/invite-client-button';
+import { Users } from 'lucide-react';
+
+export default async function AdminClientsPage() {
+  const session = await authServer.getSession();
+  const user = session?.user;
+
+  if (!user) {
+    redirect('/auth/login');
+  }
+
+  // Fetch all clients from database
+  const clients = await prisma.user.findMany({
+    where: {
+      role: 'CLIENT',
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      createdAt: true,
+    },
+  });
+
+  // Transform data for the table component
+  const clientsData = clients.map((client) => ({
+    id: client.id,
+    name: client.name,
+    email: client.email,
+    createdAt: client.createdAt,
+    projectCount: 0, // TODO: Count projects per client
+  }));
+
   return (
     <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Client Management</h1>
-        <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
-          Invite New Client
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Users className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Clients</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage your client accounts and invitations
+            </p>
+          </div>
+        </div>
+        <InviteClientButton />
       </div>
 
-      <div className="bg-card border border-border rounded-xl p-12 text-center text-muted-foreground">
-        <p>Client Management List - Coming Soon</p>
-      </div>
+      {/* Clients Table */}
+      <ClientsTable clients={clientsData} />
     </div>
   );
 }

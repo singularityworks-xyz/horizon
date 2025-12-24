@@ -1,34 +1,36 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
-import { authClient } from '@/lib/auth-client';
+import { redirect } from 'next/navigation';
+import { authServer } from '@/lib/auth-server';
+import { prisma } from '@horizon/db';
 import { StatCard } from '@/components/admin/stat-card';
 import { DollarSign, Users, FolderKanban, TrendingUp, Activity } from 'lucide-react';
 
-export default function AdminDashboardPage() {
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+export default async function AdminDashboardPage() {
+  const session = await authServer.getSession();
   const user = session?.user;
 
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-      </div>
-    );
+  if (!user) {
+    redirect('/auth/login');
   }
 
-  if (!user) {
-    router.push('/auth/login' as any);
-    return null;
-  }
+  // Fetch real client count
+  const clientCount = await prisma.user.count({
+    where: {
+      role: 'CLIENT',
+    },
+  });
 
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard title="Total Revenue" value="$0" icon={DollarSign} iconColor="text-green-400" />
-        <StatCard title="Total Clients" value="0" icon={Users} iconColor="text-blue-400" />
+        {/* We can even directly show the count of clients page in the stat card. We will try and see which approach is more effecient and then will decide. */}
+        <StatCard
+          title="Total Clients"
+          value={clientCount}
+          icon={Users}
+          iconColor="text-blue-400"
+        />
         <StatCard
           title="Total Projects"
           value="0"
