@@ -1,6 +1,7 @@
 // Provider abstraction types and interfaces
 
-import type { LanguageModelV1 } from 'ai';
+// Note: LanguageModelV1 was removed in ai v5, now using LanguageModel
+// The types in this file use 'any' for model instances to avoid tight coupling
 
 // Supported provider IDs
 export type ProviderId = 'openrouter' | 'gemini';
