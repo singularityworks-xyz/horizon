@@ -94,11 +94,12 @@ export function withAuthGuard<T = AuthenticatedContext>(
       if (options.requiredRoles && options.requiredRoles.length > 0) {
         const userRole = tenantContext.role.toUpperCase() as 'CLIENT' | 'ADMIN';
         if (!options.requiredRoles.includes(userRole)) {
+          const rolesStr = options.requiredRoles.join(', ');
           console.warn(
-            `Role check failed: Required ${options.requiredRoles.join(', ')}, got ${userRole}`
+            `Role check failed for user ${session.user.id}: Required ${rolesStr}, got ${userRole}`
           );
           return apiErrors.forbidden(
-            `Access denied. Required roles: ${options.requiredRoles.join(', ')}`,
+            `Access denied. Required role: ${rolesStr}. Current role: ${userRole}`,
             'INSUFFICIENT_ROLE'
           );
         }

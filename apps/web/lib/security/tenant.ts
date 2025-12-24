@@ -31,7 +31,7 @@ export async function validateTenantAccess(
   try {
     // Query the users table to verify this user belongs to this tenant
     // The users table links user → tenant → role
-    const userWithTenant = await prisma.users.findFirst({
+    let userWithTenant = await prisma.users.findFirst({
       where: {
         id: userId,
         tenantId: tenantId,
@@ -53,14 +53,51 @@ export async function validateTenantAccess(
       },
     });
 
+    // FALLBACK: If not found by ID, try searching by email (useful for seed data mismatches)
+    if (!userWithTenant) {
+      const betterAuthUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      if (betterAuthUser?.email) {
+        userWithTenant = await prisma.users.findFirst({
+          where: {
+            email: betterAuthUser.email,
+            tenantId: tenantId,
+          },
+          include: {
+            tenants: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+            userRoles: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+      }
+    }
+
     // If no record found, user does not have access to this tenant
     if (!userWithTenant || !(userWithTenant as any).tenants) {
       throw new TenantValidationError(`User does not have access to tenant`, 'NO_ACCESS');
     }
 
-    // Determine role from the roles table (default to 'client' if role not found)
+    // Determine role from both the 'role' field and the 'userRoles' relation
+    const directRole = (userWithTenant as any).role?.toUpperCase();
     const userRoles = (userWithTenant as any).userRoles || [];
-    const role = userRoles.some((r: any) => r.name === 'admin') ? 'admin' : 'client';
+
+    const hasAdminRole =
+      directRole === 'ADMIN' || userRoles.some((r: any) => r.name?.toLowerCase() === 'admin');
+
+    const role = hasAdminRole ? 'admin' : 'client';
 
     return {
       tenantId: (userWithTenant as any).tenants.id,
@@ -87,7 +124,7 @@ export async function validateTenantAccess(
 export async function validateUserHasTenantAccess(userId: string): Promise<TenantAccess> {
   try {
     // Look up the user's tenant and role from the database
-    const userWithTenant = await prisma.users.findFirst({
+    let userWithTenant = await prisma.users.findFirst({
       where: { id: userId },
       include: {
         tenants: {
@@ -105,17 +142,52 @@ export async function validateUserHasTenantAccess(userId: string): Promise<Tenan
       },
     });
 
+    // FALLBACK: If not found by ID, try searching by email (useful for seed data vs Better Auth ID mismatches)
+    if (!userWithTenant) {
+      // Get user email from the session-identified user
+      const betterAuthUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      if (betterAuthUser?.email) {
+        userWithTenant = await prisma.users.findFirst({
+          where: { email: betterAuthUser.email },
+          include: {
+            tenants: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+            userRoles: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        });
+      }
+    }
+
     // If user not found in users table, they haven't been linked to a tenant yet
     if (!userWithTenant || !(userWithTenant as any).tenants) {
+      console.warn(`User ${userId} found in session but missing from app users/tenants table`);
       throw new TenantValidationError(
-        `User ${userId} is not linked to any tenant`,
+        `User ${userId} is not linked to any tenant in the app database`,
         'USER_NOT_LINKED'
       );
     }
 
-    // Determine role from the roles table
+    // Determine role from both the 'role' field and the 'userRoles' relation
+    const directRole = (userWithTenant as any).role?.toUpperCase();
     const userRoles = (userWithTenant as any).userRoles || [];
-    const role = userRoles.some((r: any) => r.name === 'admin') ? 'admin' : 'client';
+
+    const hasAdminRole =
+      directRole === 'ADMIN' || userRoles.some((r: any) => r.name?.toLowerCase() === 'admin');
+
+    const role = hasAdminRole ? 'admin' : 'client';
 
     return {
       tenantId: (userWithTenant as any).tenants.id,

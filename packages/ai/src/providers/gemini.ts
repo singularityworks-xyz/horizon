@@ -28,13 +28,13 @@ export class GeminiProvider implements AiProvider {
     switch (tier) {
       case ModelTier.FAST:
         // Fast Gemini model
-        return 'gemini-1.5-flash';
+        return 'gemini-flash-latest';
       case ModelTier.BALANCED:
         // Balanced Gemini model
-        return 'gemini-1.5-flash';
+        return 'gemini-flash-latest';
       case ModelTier.QUALITY:
         // High-quality Gemini model
-        return 'gemini-1.5-pro';
+        return 'gemini-pro-latest';
       default:
         throw new Error(`Unknown model tier: ${tier}`);
     }

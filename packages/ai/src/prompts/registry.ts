@@ -18,7 +18,34 @@ export interface PromptResult {
 }
 
 export class PromptRegistry {
-  private static readonly PROMPTS_DIR = join(__dirname, '../../prompts');
+  private static readonly PROMPTS_DIR = PromptRegistry.resolvePromptsDir();
+
+  private static resolvePromptsDir(): string {
+    const fs = require('fs');
+    const path = require('path');
+
+    // Candidate paths to check
+    const candidates = [
+      // 1. Monorepo: from apps/web up to root, then to packages/ai/prompts
+      path.join(process.cwd(), '../../packages/ai/prompts'),
+      // 2. If cwd is already the monorepo root
+      path.join(process.cwd(), 'packages/ai/prompts'),
+      // 3. Relative to the compiled file (original logic)
+      path.join(__dirname, '../../prompts'),
+      // 4. Fallback for different build structures
+      path.join(process.cwd(), 'prompts'),
+    ];
+
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
+        return candidate;
+      }
+    }
+
+    // Fallback to original relative path even if not found, to allow error handling downstream
+    return path.join(__dirname, '../../prompts');
+  }
+
   private promptCache = new Map<string, PromptVersion[]>();
 
   /**
@@ -97,7 +124,7 @@ export class PromptRegistry {
       return versions;
     } catch (error) {
       // Directory doesn't exist or can't be read
-      this.promptCache.set(promptId, []);
+      // Do not cache failures so that we can retry if the directory is created later
       return [];
     }
   }

@@ -9,8 +9,10 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
 
   // Authentication
-  NEXTAUTH_SECRET: z.string().min(32),
+  NEXTAUTH_SECRET: z.string().min(32).optional(),
   NEXTAUTH_URL: z.string().url().optional(),
+  BETTER_AUTH_SECRET: z.string().min(1).optional(),
+  BETTER_AUTH_URL: z.string().url().optional(),
 
   // External Services
   OPENAI_API_KEY: z.string().optional(),

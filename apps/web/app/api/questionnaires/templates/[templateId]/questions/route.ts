@@ -8,9 +8,24 @@ import {
   UpdateQuestionSchema,
 } from '@/lib/questionnaire/validation';
 import { apiErrors, guards } from '@/lib/security/guards';
+import { auth } from '@/lib/auth';
 
 // GET /api/questionnaires/templates/[templateId]/questions - List questions for template
-export const GET = guards.adminOnly(async (request, context, params) => {
+export const GET = guards.authenticated(async (request, context, params) => {
+  // Extra safety: Check session role if context role is mismatched
+  const session = await auth.api.getSession({
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  const sessionRole = (session?.user as any)?.role?.toUpperCase();
+  const contextRole = context.role?.toUpperCase();
+
+  if (sessionRole !== 'ADMIN' && contextRole !== 'ADMIN') {
+    return apiErrors.forbidden(
+      `Admin access required. (Role: ${contextRole}, Session: ${sessionRole})`
+    );
+  }
+
   try {
     const templateId = params?.templateId || new URL(request.url).searchParams.get('templateId');
 
@@ -46,7 +61,21 @@ export const GET = guards.adminOnly(async (request, context, params) => {
 });
 
 // POST /api/questionnaires/templates/[templateId]/questions - Create new question
-export const POST = guards.adminOnly(async (request, context, params) => {
+export const POST = guards.authenticated(async (request, context, params) => {
+  // Extra safety: Check session role if context role is mismatched
+  const session = await auth.api.getSession({
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  const sessionRole = (session?.user as any)?.role?.toUpperCase();
+  const contextRole = context.role?.toUpperCase();
+
+  if (sessionRole !== 'ADMIN' && contextRole !== 'ADMIN') {
+    return apiErrors.forbidden(
+      `Admin access required. (Role: ${contextRole}, Session: ${sessionRole})`
+    );
+  }
+
   try {
     const templateId = params?.templateId || new URL(request.url).searchParams.get('templateId');
     const body = await request.json();
@@ -103,7 +132,20 @@ export const POST = guards.adminOnly(async (request, context, params) => {
 });
 
 // PATCH /api/questionnaires/templates/[templateId]/questions/[questionId] - Update question
-export const PATCH = guards.adminOnly(async (request, context, params) => {
+export const PATCH = guards.authenticated(async (request, context, params) => {
+  // Extra safety: Check session role if context role is mismatched
+  const session = await auth.api.getSession({
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  const sessionRole = (session?.user as any)?.role?.toUpperCase();
+  const contextRole = context.role?.toUpperCase();
+
+  if (sessionRole !== 'ADMIN' && contextRole !== 'ADMIN') {
+    return apiErrors.forbidden(
+      `Admin access required. (Role: ${contextRole}, Session: ${sessionRole})`
+    );
+  }
   const { searchParams } = new URL(request.url);
   const questionId = searchParams.get('questionId');
 
@@ -171,7 +213,20 @@ export const PATCH = guards.adminOnly(async (request, context, params) => {
 });
 
 // DELETE /api/questionnaires/templates/[templateId]/questions/[questionId] - Delete question
-export const DELETE = guards.adminOnly(async (request, context, params) => {
+export const DELETE = guards.authenticated(async (request, context, params) => {
+  // Extra safety: Check session role if context role is mismatched
+  const session = await auth.api.getSession({
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  const sessionRole = (session?.user as any)?.role?.toUpperCase();
+  const contextRole = context.role?.toUpperCase();
+
+  if (sessionRole !== 'ADMIN' && contextRole !== 'ADMIN') {
+    return apiErrors.forbidden(
+      `Admin access required. (Role: ${contextRole}, Session: ${sessionRole})`
+    );
+  }
   const { searchParams } = new URL(request.url);
   const questionId = searchParams.get('questionId');
 

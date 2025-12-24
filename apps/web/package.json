@@ -20,6 +20,7 @@
     "@horizon/config": "workspace:*",
     "@horizon/db": "workspace:*",
     "@horizon/ui": "workspace:*",
+    "@horizon/ai": "workspace:*",
     "@prisma/client": "^7.2.0",
     "better-auth": "^1.0.0",
     "lucide-react": "^0.562.0",

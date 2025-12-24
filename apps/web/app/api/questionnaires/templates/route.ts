@@ -8,9 +8,24 @@ import {
   UpdateTemplateSchema,
 } from '@/lib/questionnaire/validation';
 import { apiErrors, guards } from '@/lib/security/guards';
+import { auth } from '@/lib/auth';
 
 // GET /api/questionnaires/templates - List templates for tenant
-export const GET = guards.adminOnly(async (request, context, params) => {
+export const GET = guards.authenticated(async (request, context, params) => {
+  // Extra safety: Check session role if context role is mismatched
+  const session = await auth.api.getSession({
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  const sessionRole = (session?.user as any)?.role?.toUpperCase();
+  const contextRole = context.role?.toUpperCase();
+
+  if (sessionRole !== 'ADMIN' && contextRole !== 'ADMIN') {
+    return apiErrors.forbidden(
+      `Admin access required. (Role: ${contextRole}, Session: ${sessionRole})`
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get('projectId');
@@ -41,7 +56,21 @@ export const GET = guards.adminOnly(async (request, context, params) => {
 });
 
 // POST /api/questionnaires/templates - Create new template
-export const POST = guards.adminOnly(async (request, context, params) => {
+export const POST = guards.authenticated(async (request, context, params) => {
+  // Extra safety: Check session role if context role is mismatched
+  const session = await auth.api.getSession({
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  const sessionRole = (session?.user as any)?.role?.toUpperCase();
+  const contextRole = context.role?.toUpperCase();
+
+  if (sessionRole !== 'ADMIN' && contextRole !== 'ADMIN') {
+    return apiErrors.forbidden(
+      `Admin access required. (Role: ${contextRole}, Session: ${sessionRole})`
+    );
+  }
+
   try {
     const body = await request.json();
 
@@ -91,7 +120,21 @@ export const POST = guards.adminOnly(async (request, context, params) => {
 });
 
 // PATCH /api/questionnaires/templates/[id] - Update template
-export const PATCH = guards.adminOnly(async (request, context, params) => {
+export const PATCH = guards.authenticated(async (request, context, params) => {
+  // Extra safety: Check session role if context role is mismatched
+  const session = await auth.api.getSession({
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  const sessionRole = (session?.user as any)?.role?.toUpperCase();
+  const contextRole = context.role?.toUpperCase();
+
+  if (sessionRole !== 'ADMIN' && contextRole !== 'ADMIN') {
+    return apiErrors.forbidden(
+      `Admin access required. (Role: ${contextRole}, Session: ${sessionRole})`
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const templateId = searchParams.get('id');
@@ -140,7 +183,21 @@ export const PATCH = guards.adminOnly(async (request, context, params) => {
 });
 
 // DELETE /api/questionnaires/templates/[id] - Delete template (soft delete by deactivating)
-export const DELETE = guards.adminOnly(async (request, context, params) => {
+export const DELETE = guards.authenticated(async (request, context, params) => {
+  // Extra safety: Check session role if context role is mismatched
+  const session = await auth.api.getSession({
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  const sessionRole = (session?.user as any)?.role?.toUpperCase();
+  const contextRole = context.role?.toUpperCase();
+
+  if (sessionRole !== 'ADMIN' && contextRole !== 'ADMIN') {
+    return apiErrors.forbidden(
+      `Admin access required. (Role: ${contextRole}, Session: ${sessionRole})`
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const templateId = searchParams.get('id');
@@ -162,13 +219,12 @@ export const DELETE = guards.adminOnly(async (request, context, params) => {
       return apiErrors.badRequest('Cannot delete template with active submissions');
     }
 
-    // Soft delete by deactivating
-    const template = await prisma.questionnaire_templates.update({
+    // Hard delete since there are no active submissions
+    const template = await prisma.questionnaire_templates.delete({
       where: {
         id: templateId,
         tenantId: context.tenantId,
       },
-      data: { isActive: false, updatedAt: new Date() },
       include: {
         projects: {
           select: { id: true, name: true },
