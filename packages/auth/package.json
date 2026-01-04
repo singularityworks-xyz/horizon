@@ -1,0 +1,24 @@
+{
+  "name": "@horizon/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@horizon/db": "workspace:*",
+    "@horizon/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@horizon/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

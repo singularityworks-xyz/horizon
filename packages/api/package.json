@@ -1,0 +1,27 @@
+{
+  "name": "@horizon/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@horizon/auth": "workspace:*",
+    "@horizon/db": "workspace:*",
+    "@horizon/env": "workspace:*",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "dotenv": "catalog:",
+    "next": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@horizon/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
