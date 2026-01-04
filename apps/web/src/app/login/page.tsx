@@ -1,16 +1,20 @@
-"use client";
+import { auth } from "@horizon/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import LoginPageClient from "./login-page-client";
 
-import { useState } from "react";
+export default async function LoginPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-import SignInForm from "@/components/sign-in-form";
-import SignUpForm from "@/components/sign-up-form";
+  if (session?.user) {
+    if (session.user.role === "ADMIN") {
+      redirect("/admin");
+    } else {
+      redirect("/dashboard");
+    }
+  }
 
-export default function LoginPage() {
-  const [showSignIn, setShowSignIn] = useState(false);
-
-  return showSignIn ? (
-    <SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
-  ) : (
-    <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
-  );
+  return <LoginPageClient />;
 }

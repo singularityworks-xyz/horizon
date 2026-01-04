@@ -13,6 +13,10 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  if (session.user.role === "ADMIN") {
+    redirect("/admin");
+  }
+
   return (
     <div>
       <h1>Dashboard</h1>
