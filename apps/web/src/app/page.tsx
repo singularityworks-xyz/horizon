@@ -1,7 +1,7 @@
 import { auth } from "@horizon/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import HomeClient from "./home-client";
+import LandingPage from "./landing-page";
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -16,5 +16,5 @@ export default async function Home() {
     }
   }
 
-  return <HomeClient />;
+  return <LandingPage />;
 }

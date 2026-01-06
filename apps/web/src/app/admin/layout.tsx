@@ -1,4 +1,8 @@
 import type { ReactNode } from "react";
+import { AdminContent } from "@/components/dashboard/admin-content";
+import { AdminSidebar } from "@/components/dashboard/admin-sidebar";
+import { SidebarProvider } from "@/components/dashboard/sidebar-context";
+import Navbar from "@/components/navbar";
 import { requireAdmin } from "@/lib/guards";
 
 export default async function AdminLayout({
@@ -10,16 +14,17 @@ export default async function AdminLayout({
   await requireAdmin();
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-primary/5 px-6 py-4">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-xl">Admin Dashboard</span>
-          <span className="rounded-full bg-primary px-2 py-0.5 text-primary-foreground text-xs">
-            ADMIN
-          </span>
-        </div>
-      </header>
-      <main className="p-6">{children}</main>
-    </div>
+    <SidebarProvider>
+      <div className="min-h-screen bg-background">
+        {/* Navbar at the top */}
+        <Navbar />
+
+        {/* Sidebar below navbar */}
+        <AdminSidebar />
+
+        {/* Main content with dynamic margin based on sidebar state */}
+        <AdminContent>{children}</AdminContent>
+      </div>
+    </SidebarProvider>
   );
 }
