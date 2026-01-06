@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { AdminContent } from "@/components/dashboard/admin-content";
+
 import { AdminSidebar } from "@/components/dashboard/admin-sidebar";
+import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { SidebarProvider } from "@/components/dashboard/sidebar-context";
 import Navbar from "@/components/navbar";
 import { requireAdmin } from "@/lib/guards";
@@ -23,7 +24,7 @@ export default async function AdminLayout({
         <AdminSidebar />
 
         {/* Main content with dynamic margin based on sidebar state */}
-        <AdminContent>{children}</AdminContent>
+        <DashboardContent>{children}</DashboardContent>
       </div>
     </SidebarProvider>
   );
