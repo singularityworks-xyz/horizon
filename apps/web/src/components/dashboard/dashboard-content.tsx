@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/utils/cn";
 import { useSidebar } from "./sidebar-context";
 
-export function AdminContent({ children }: { children: ReactNode }) {
+export function DashboardContent({ children }: { children: ReactNode }) {
   const { isCollapsed } = useSidebar();
 
   return (
