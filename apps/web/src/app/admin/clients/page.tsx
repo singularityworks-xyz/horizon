@@ -1,13 +1,15 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/utils/trpc";
+import { trpc, trpcClient } from "@/utils/trpc";
 
 function formatDate(date: Date | string) {
   const d = new Date(date);
@@ -20,6 +22,11 @@ function formatDate(date: Date | string) {
 
 export default function ClientsPage() {
   const [search, setSearch] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const queryClient = useQueryClient();
 
   // Fetch client statistics
   const { data: stats, isLoading: statsLoading } = useQuery(
@@ -38,7 +45,28 @@ export default function ClientsPage() {
     })
   );
 
+  // Delete mutation using trpcClient
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await trpcClient.client.delete.mutate({ id });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [["client"]] });
+      setDeleteConfirm(null);
+    },
+  });
+
   const clients = clientsData?.clients ?? [];
+
+  const handleDelete = (client: { id: string; name: string }) => {
+    setDeleteConfirm(client);
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirm) {
+      deleteMutation.mutate(deleteConfirm.id);
+    }
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -153,7 +181,10 @@ export default function ClientsPage() {
                   className="flex items-start justify-between border-b pb-4 last:border-0"
                   key={client.id}
                 >
-                  <div className="flex items-start gap-4">
+                  <Link
+                    className="flex flex-1 cursor-pointer items-start gap-4 transition-opacity hover:opacity-80"
+                    href={`/admin/clients/${client.id}`}
+                  >
                     {client.image ? (
                       <Image
                         alt={client.name}
@@ -193,16 +224,66 @@ export default function ClientsPage() {
                         <span>{client._count.accounts} accounts</span>
                       </div>
                     </div>
+                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link href={`/admin/clients/${client.id}`}>
+                      <Button size="sm" variant="outline">
+                        View Details
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={() =>
+                        handleDelete({ id: client.id, name: client.name })
+                      }
+                      size="sm"
+                      variant="destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button size="sm" variant="outline">
-                    View Details
-                  </Button>
                 </div>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-destructive">Delete Client</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>
+                Are you sure you want to delete{" "}
+                <strong>{deleteConfirm.name}</strong>? This action cannot be
+                undone.
+              </p>
+              <p className="text-muted-foreground text-sm">
+                This will also delete all associated sessions and accounts.
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button
+                  disabled={deleteMutation.isPending}
+                  onClick={() => setDeleteConfirm(null)}
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  disabled={deleteMutation.isPending}
+                  onClick={confirmDelete}
+                  variant="destructive"
+                >
+                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

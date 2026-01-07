@@ -1,4 +1,5 @@
 export {
+  deleteClient,
   fetchClientById,
   fetchClientStats,
   fetchClients,

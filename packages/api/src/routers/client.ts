@@ -1,4 +1,5 @@
 import {
+  deleteClient,
   fetchClientById,
   fetchClientStats,
   fetchClients,
@@ -57,4 +58,15 @@ export const clientRouter = router({
   getStats: adminProcedure.query(() => {
     return fetchClientStats();
   }),
+
+  /**
+   * Delete a client by ID
+   * Admin-only endpoint - cascades to delete sessions and accounts
+   */
+  delete: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }): Promise<{ success: boolean }> => {
+      await deleteClient(input.id);
+      return { success: true };
+    }),
 });

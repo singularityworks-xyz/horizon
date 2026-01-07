@@ -143,3 +143,16 @@ export async function fetchClientStats() {
     unverifiedClients: totalClients - verifiedClients,
   };
 }
+
+/**
+ * Delete a client by ID
+ * Cascades to delete sessions and accounts per schema
+ */
+export async function deleteClient(clientId: string): Promise<void> {
+  await prisma.user.delete({
+    where: {
+      id: clientId,
+      role: "USER",
+    },
+  });
+}

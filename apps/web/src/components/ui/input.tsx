@@ -1,9 +1,18 @@
 import { Input as InputPrimitive } from "@base-ui/react/input";
 import type * as React from "react";
+import { useId } from "react";
 
 import { cn } from "@/lib/utils";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+function Input({
+  className,
+  type,
+  id,
+  ...props
+}: React.ComponentProps<"input">) {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+
   return (
     <InputPrimitive
       className={cn(
@@ -11,6 +20,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
         className
       )}
       data-slot="input"
+      id={inputId}
       type={type}
       {...props}
     />
