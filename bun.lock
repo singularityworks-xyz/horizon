@@ -66,6 +66,7 @@
         "@horizon/auth": "workspace:*",
         "@horizon/db": "workspace:*",
         "@horizon/env": "workspace:*",
+        "@horizon/services": "workspace:*",
         "@trpc/client": "catalog:",
         "@trpc/server": "catalog:",
         "dotenv": "catalog:",
@@ -125,6 +126,16 @@
       "devDependencies": {
         "@horizon/config": "workspace:*",
         "@types/node": "^22.13.14",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/services": {
+      "name": "@horizon/services",
+      "dependencies": {
+        "@horizon/db": "workspace:*",
+      },
+      "devDependencies": {
+        "@horizon/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
@@ -275,6 +286,8 @@
     "@horizon/db": ["@horizon/db@workspace:packages/db"],
 
     "@horizon/env": ["@horizon/env@workspace:packages/env"],
+
+    "@horizon/services": ["@horizon/services@workspace:packages/services"],
 
     "@img/colour": ["@img/colour@1.0.0", "", {}, "sha512-A5P/LfWGFSl6nsckYtjw9da+19jB8hkJ6ACTGcDfEJ0aE+l2n2El7dsVM7UVHZQ9s2lmYMWlrS21YLy2IR1LUw=="],
 

@@ -1,0 +1,21 @@
+{
+  "name": "@horizon/services",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@horizon/db": "workspace:*"
+  },
+  "devDependencies": {
+    "@horizon/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
