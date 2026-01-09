@@ -84,6 +84,7 @@ model Answer {
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
 
+  @@unique([projectQuestionnaireId, questionId]) // One answer per question per questionnaire
   @@index([projectQuestionnaireId])
   @@index([questionId])
   @@map("answer")

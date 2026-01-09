@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Settings,
 } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/utils/cn";
@@ -85,7 +86,7 @@ export function ClientSidebar() {
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   isCollapsed && "justify-center"
                 )}
-                href={item.href}
+                href={item.href as Route}
                 key={item.href}
                 title={isCollapsed ? item.name : undefined}
               >

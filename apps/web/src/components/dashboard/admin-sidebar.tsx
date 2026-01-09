@@ -11,6 +11,7 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/utils/cn";
@@ -19,37 +20,37 @@ import { useSidebar } from "./sidebar-context";
 const navigationItems = [
   {
     name: "Dashboard",
-    href: "/admin",
+    href: "/admin" as const,
     icon: LayoutDashboard,
   },
   {
     name: "Clients",
-    href: "/admin/clients",
+    href: "/admin/clients" as const,
     icon: Users,
   },
   {
     name: "Projects",
-    href: "/admin/projects",
+    href: "/admin/projects" as const,
     icon: FolderKanban,
   },
   {
     name: "Workflows",
-    href: "/admin/workflows",
+    href: "/admin/workflows" as const,
     icon: GitBranch,
   },
   {
     name: "Questionnaire",
-    href: "/admin/questionnaire",
+    href: "/admin/questionnaire" as const,
     icon: ClipboardList,
   },
   {
     name: "Analytics",
-    href: "/admin/analytics",
+    href: "/admin/analytics" as const,
     icon: BarChart3,
   },
   {
     name: "Settings",
-    href: "/admin/settings",
+    href: "/admin/settings" as const,
     icon: Settings,
   },
 ];
@@ -97,7 +98,7 @@ export function AdminSidebar() {
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   isCollapsed && "justify-center"
                 )}
-                href={item.href}
+                href={item.href as Route}
                 key={item.href}
                 title={isCollapsed ? item.name : undefined}
               >

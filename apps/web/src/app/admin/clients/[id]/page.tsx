@@ -1,13 +1,26 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Calendar, Mail, Shield, User } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  ClipboardList,
+  Eye,
+  FolderKanban,
+  Shield,
+  User,
+} from "lucide-react";
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { getProjectsByClient } from "@/actions/project";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { trpc } from "@/utils/trpc";
 
 function formatDate(date: Date | string) {
@@ -30,15 +43,70 @@ function formatDateTime(date: Date | string) {
   });
 }
 
+const statusColors: Record<string, string> = {
+  ACTIVE: "bg-green-500/20 text-green-400 border-green-500/30",
+  COMPLETED: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  ON_HOLD: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  CANCELLED: "bg-red-500/20 text-red-400 border-red-500/30",
+};
+
+const typeColors: Record<string, string> = {
+  WEBSITE: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  SAAS: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  APP: "bg-green-500/20 text-green-400 border-green-500/30",
+  CUSTOM: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+};
+
+const questionnaireStatusColors: Record<string, string> = {
+  DRAFT: "bg-yellow-500/20 text-yellow-400",
+  SUBMITTED: "bg-blue-500/20 text-blue-400",
+  LOCKED: "bg-gray-500/20 text-gray-400",
+};
+
+interface Project {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  createdAt: Date;
+  questionnaires: {
+    id: string;
+    status: string;
+    template: {
+      name: string;
+    } | null;
+    _count: {
+      answers: number;
+    };
+  }[];
+}
+
 export default function ClientDetailPage() {
   const params = useParams();
   const clientId = params.id as string;
+
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
 
   const {
     data: client,
     isLoading,
     error,
   } = useQuery(trpc.client.getById.queryOptions({ id: clientId }));
+
+  // Load projects for this client
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const result = await getProjectsByClient(clientId);
+        setProjects(result as Project[]);
+      } catch (err) {
+        console.error("Failed to load projects:", err);
+      }
+      setIsLoadingProjects(false);
+    };
+    loadProjects();
+  }, [clientId]);
 
   if (isLoading) {
     return (
@@ -141,12 +209,23 @@ export default function ClientDetailPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="font-medium text-sm">Email</CardTitle>
-            <Mail className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="font-medium text-sm">Projects</CardTitle>
+            <FolderKanban className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="font-bold text-xl">{projects.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="font-medium text-sm">
+              Questionnaires
+            </CardTitle>
+            <ClipboardList className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="font-bold text-xl">
-              {client.emailVerified ? "Verified" : "Unverified"}
+              {projects.reduce((acc, p) => acc + p.questionnaires.length, 0)}
             </div>
           </CardContent>
         </Card>
@@ -159,16 +238,128 @@ export default function ClientDetailPage() {
             <div className="font-bold text-xl">{client._count.sessions}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="font-medium text-sm">Accounts</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-bold text-xl">{client._count.accounts}</div>
-          </CardContent>
-        </Card>
       </div>
+
+      {/* Projects Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Projects</CardTitle>
+          <Link
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            href={"/admin/projects/new" as Route}
+          >
+            Create Project
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {isLoadingProjects ? (
+            <div className="space-y-3">
+              <Skeleton className="h-20" />
+              <Skeleton className="h-20" />
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="rounded-lg border border-border border-dashed p-8 text-center">
+              <FolderKanban className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+              <p className="text-muted-foreground text-sm">
+                No projects yet for this client.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {projects.map((project) => (
+                <div
+                  className="rounded-lg border border-border p-4"
+                  key={project.id}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                        <FolderKanban className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <Link
+                          className="font-medium hover:text-primary hover:underline"
+                          href={`/admin/projects/${project.id}` as Route}
+                        >
+                          {project.name}
+                        </Link>
+                        <div className="mt-1 flex items-center gap-2">
+                          <Badge
+                            className={`text-xs ${typeColors[project.type] || ""}`}
+                            variant="outline"
+                          >
+                            {project.type}
+                          </Badge>
+                          <Badge
+                            className={`text-xs ${statusColors[project.status] || ""}`}
+                            variant="outline"
+                          >
+                            {project.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-muted-foreground text-xs">
+                      {formatDate(project.createdAt)}
+                    </span>
+                  </div>
+
+                  {/* Project's Questionnaires */}
+                  {project.questionnaires.length > 0 && (
+                    <div className="mt-3 border-border border-t pt-3">
+                      <p className="mb-2 text-muted-foreground text-xs">
+                        Questionnaires ({project.questionnaires.length})
+                      </p>
+                      <div className="space-y-2">
+                        {project.questionnaires.map((q) => {
+                          const hasAnswers = q._count.answers > 0;
+                          return (
+                            <div
+                              className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-2"
+                              key={q.id}
+                            >
+                              <div className="flex items-center gap-2">
+                                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">
+                                  {q.template?.name || "Questionnaire"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  className={`text-xs ${questionnaireStatusColors[q.status] || ""}`}
+                                >
+                                  {q.status}
+                                </Badge>
+                                {hasAnswers && (
+                                  <Link
+                                    className={cn(
+                                      buttonVariants({
+                                        variant: "ghost",
+                                        size: "sm",
+                                      }),
+                                      "h-7 px-2"
+                                    )}
+                                    href={
+                                      `/admin/projects/${project.id}/questionnaire/${q.id}` as Route
+                                    }
+                                  >
+                                    <Eye className="mr-1 h-3 w-3" />
+                                    View
+                                  </Link>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Sessions and Accounts */}
       <div className="grid gap-6 md:grid-cols-2">
