@@ -1,0 +1,30 @@
+enum ProjectType {
+  WEBSITE
+  SAAS
+  APP
+  CUSTOM
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+model Project {
+  id        String        @id @default(cuid())
+  name      String
+  clientId  String
+  client    User          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  status    ProjectStatus @default(ACTIVE)
+  type      ProjectType
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // 1 Project = 1 active questionnaire submission
+  questionnaires ProjectQuestionnaire[]
+
+  @@index([clientId])
+  @@map("project")
+}

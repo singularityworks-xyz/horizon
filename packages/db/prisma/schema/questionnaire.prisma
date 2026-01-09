@@ -1,0 +1,90 @@
+enum QuestionType {
+  TEXT
+  SELECT
+  MULTI_SELECT
+  FILE
+  BOOLEAN
+  NUMBER
+}
+
+enum QuestionnaireStatus {
+  DRAFT
+  SUBMITTED
+  LOCKED
+}
+
+// Reusable blueprint created by admin
+// Examples: "Website Discovery v1", "SaaS MVP Intake v2"
+model QuestionnaireTemplate {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  projectType ProjectType // Links to the project type this template is for
+  version     Int         @default(1)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // 1 template → many questions
+  questions             Question[]
+  projectQuestionnaires ProjectQuestionnaire[]
+
+  @@index([projectType])
+  @@index([isActive])
+  @@map("questionnaire_template")
+}
+
+// Individual questions inside a template
+model Question {
+  id         String                @id @default(cuid())
+  templateId String
+  template   QuestionnaireTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  label      String
+  type       QuestionType
+  required   Boolean               @default(false)
+  order      Int                   @default(0)
+  options    Json? // For SELECT/MULTI_SELECT options
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  answers Answer[]
+
+  @@index([templateId])
+  @@map("question")
+}
+
+// Bridge table: represents a specific project filling a specific questionnaire
+model ProjectQuestionnaire {
+  id          String                @id @default(cuid())
+  projectId   String
+  project     Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  templateId  String
+  template    QuestionnaireTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  status      QuestionnaireStatus   @default(DRAFT)
+  submittedAt DateTime?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  answers Answer[]
+
+  @@index([projectId])
+  @@index([templateId])
+  @@index([status])
+  @@map("project_questionnaire")
+}
+
+// Stores actual client responses
+model Answer {
+  id                     String               @id @default(cuid())
+  projectQuestionnaireId String
+  projectQuestionnaire   ProjectQuestionnaire @relation(fields: [projectQuestionnaireId], references: [id], onDelete: Cascade)
+  questionId             String
+  question               Question             @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value                  Json // Stores the answer value
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+
+  @@index([projectQuestionnaireId])
+  @@index([questionId])
+  @@map("answer")
+}
