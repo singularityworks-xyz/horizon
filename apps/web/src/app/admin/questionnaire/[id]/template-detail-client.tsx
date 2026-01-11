@@ -90,7 +90,8 @@ export function TemplateDetailClient({ template }: { template: Template }) {
   };
 
   const handleDeleteTemplate = () => {
-    if (!confirm("Are you sure you want to delete this template?")) {
+    // biome-ignore lint/suspicious/noAlert: Using window.confirm for simple delete confirmation
+    if (!window.confirm("Are you sure you want to delete this template?")) {
       return;
     }
 
@@ -132,7 +133,8 @@ export function TemplateDetailClient({ template }: { template: Template }) {
   };
 
   const handleDeleteQuestion = (questionId: string) => {
-    if (!confirm("Delete this question?")) {
+    // biome-ignore lint/suspicious/noAlert: Using window.confirm for simple delete confirmation
+    if (!window.confirm("Delete this question?")) {
       return;
     }
 
@@ -278,7 +280,7 @@ export function TemplateDetailClient({ template }: { template: Template }) {
       </div>
 
       {/* Description */}
-      {isEditing ? (
+      {isEditing && (
         <div className="space-y-2">
           <Label>Description</Label>
           <Input
@@ -287,9 +289,10 @@ export function TemplateDetailClient({ template }: { template: Template }) {
             value={description}
           />
         </div>
-      ) : template.description ? (
+      )}
+      {!isEditing && template.description && (
         <p className="text-muted-foreground">{template.description}</p>
-      ) : null}
+      )}
 
       {/* Questions Section */}
       <div className="rounded-2xl border border-border bg-card">
@@ -378,7 +381,8 @@ export function TemplateDetailClient({ template }: { template: Template }) {
             </div>
           ) : (
             questions.map((question, index) => (
-              <div
+              // biome-ignore lint/a11y/noNoninteractiveElementInteractions: Drag-and-drop requires event handlers on list items
+              <li
                 className={cn(
                   "flex items-center gap-4 p-4 transition-all",
                   draggedIndex === index && "opacity-50",
@@ -394,6 +398,11 @@ export function TemplateDetailClient({ template }: { template: Template }) {
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDrop={(e) => handleDrop(e, index)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                  }
+                }}
               >
                 {/* Drag Handle */}
                 <div className="flex items-center gap-2">
@@ -436,7 +445,7 @@ export function TemplateDetailClient({ template }: { template: Template }) {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
+              </li>
             ))
           )}
         </div>

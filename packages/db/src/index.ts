@@ -3,7 +3,7 @@ import { neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import ws from "ws";
 
-import { Prisma, PrismaClient } from "../prisma/generated/client";
+import { PrismaClient } from "../prisma/generated/client";
 
 // Re-export types for use in actions
 export type {
@@ -14,7 +14,8 @@ export type {
 } from "../prisma/generated/client";
 
 // Re-export Prisma namespace (contains JsonNull, InputJsonValue, etc.)
-export { Prisma };
+// biome-ignore lint/performance/noBarrelFile: This is the package entry point, exports are intentional
+export { Prisma } from "../prisma/generated/client";
 
 neonConfig.webSocketConstructor = ws;
 neonConfig.poolQueryViaFetch = true;

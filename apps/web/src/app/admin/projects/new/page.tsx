@@ -206,17 +206,20 @@ export default function NewProjectPage() {
 
                   {/* Client List */}
                   <div className="max-h-60 overflow-y-auto p-1">
-                    {isLoadingClients ? (
+                    {isLoadingClients && (
                       <div className="p-4 text-center text-muted-foreground text-sm">
                         Loading clients...
                       </div>
-                    ) : clients.length === 0 ? (
+                    )}
+                    {!isLoadingClients && clients.length === 0 && (
                       <div className="p-4 text-center text-muted-foreground text-sm">
                         {searchQuery
                           ? "No clients found"
                           : "No clients available"}
                       </div>
-                    ) : (
+                    )}
+                    {!isLoadingClients &&
+                      clients.length > 0 &&
                       clients.map((client) => (
                         <button
                           className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
@@ -231,8 +234,7 @@ export default function NewProjectPage() {
                             </p>
                           </div>
                         </button>
-                      ))
-                    )}
+                      ))}
                   </div>
                 </div>
               )}

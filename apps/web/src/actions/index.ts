@@ -1,6 +1,7 @@
 // Re-export all server actions for convenient imports
 
 // Project Actions
+// biome-ignore lint/performance/noBarrelFile: This is an intentional barrel file for convenient imports
 export {
   createProject,
   deleteProject,

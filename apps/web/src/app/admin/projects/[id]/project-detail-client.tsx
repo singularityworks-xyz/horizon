@@ -60,9 +60,17 @@ export function ProjectDetailClient({
 
       {showDropdown && (
         <>
-          <div
-            className="fixed inset-0 z-10"
+          <button
+            aria-label="Close dropdown"
+            className="fixed inset-0 z-10 cursor-default"
             onClick={() => setShowDropdown(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setShowDropdown(false);
+              }
+            }}
+            tabIndex={-1}
+            type="button"
           />
           <div className="absolute right-0 z-20 mt-2 w-64 rounded-lg border border-border bg-popover p-2 shadow-lg">
             <div className="max-h-60 space-y-1 overflow-y-auto">

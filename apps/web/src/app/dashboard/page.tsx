@@ -1,7 +1,8 @@
 import { auth } from "@horizon/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-
+import { getProjectsByClient } from "@/actions/project";
+import { getClientPendingQuestionnaires } from "@/actions/questionnaire/assignment";
 import Dashboard from "./dashboard";
 
 export default async function DashboardPage() {
@@ -17,5 +18,17 @@ export default async function DashboardPage() {
     redirect("/admin");
   }
 
-  return <Dashboard session={session} />;
+  // Fetch data for the dashboard
+  const [pendingQuestionnaires, projects] = await Promise.all([
+    getClientPendingQuestionnaires(),
+    getProjectsByClient(),
+  ]);
+
+  return (
+    <Dashboard
+      pendingQuestionnaires={pendingQuestionnaires}
+      projects={projects}
+      session={session}
+    />
+  );
 }

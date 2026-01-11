@@ -252,19 +252,21 @@ export default function ClientDetailPage() {
           </Link>
         </CardHeader>
         <CardContent>
-          {isLoadingProjects ? (
+          {isLoadingProjects && (
             <div className="space-y-3">
               <Skeleton className="h-20" />
               <Skeleton className="h-20" />
             </div>
-          ) : projects.length === 0 ? (
+          )}
+          {!isLoadingProjects && projects.length === 0 && (
             <div className="rounded-lg border border-border border-dashed p-8 text-center">
               <FolderKanban className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
               <p className="text-muted-foreground text-sm">
                 No projects yet for this client.
               </p>
             </div>
-          ) : (
+          )}
+          {!isLoadingProjects && projects.length > 0 && (
             <div className="space-y-4">
               {projects.map((project) => (
                 <div

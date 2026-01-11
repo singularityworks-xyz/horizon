@@ -314,31 +314,34 @@ function QuestionInput({
       return (
         <div className="space-y-2">
           {multiOptions.map((option) => (
-            <label
+            <button
               className={cn(
-                "flex w-full cursor-pointer items-center gap-3 rounded-lg border-2 px-4 py-3 font-medium text-sm transition-all",
+                "flex w-full cursor-pointer items-center gap-3 rounded-lg border-2 px-4 py-3 text-left font-medium text-sm transition-all",
                 selectedValues.includes(option)
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border hover:border-primary/50",
                 disabled && "cursor-not-allowed opacity-50"
               )}
+              disabled={disabled}
               key={option}
+              onClick={() => {
+                if (disabled) {
+                  return;
+                }
+                const newValues = selectedValues.includes(option)
+                  ? selectedValues.filter((v) => v !== option)
+                  : [...selectedValues, option];
+                onChange(newValues);
+              }}
+              type="button"
             >
               <Checkbox
                 checked={selectedValues.includes(option)}
                 disabled={disabled}
-                onCheckedChange={(checked) => {
-                  if (disabled) {
-                    return;
-                  }
-                  const newValues = checked
-                    ? [...selectedValues, option]
-                    : selectedValues.filter((v) => v !== option);
-                  onChange(newValues);
-                }}
+                tabIndex={-1}
               />
               {option}
-            </label>
+            </button>
           ))}
         </div>
       );

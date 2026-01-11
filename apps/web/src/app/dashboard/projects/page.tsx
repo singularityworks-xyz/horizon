@@ -25,6 +25,16 @@ const questionnaireStatusColors: Record<string, string> = {
   LOCKED: "bg-gray-500/20 text-gray-400",
 };
 
+function getQuestionnaireStatusText(status: string): string {
+  if (status === "DRAFT") {
+    return "In progress";
+  }
+  if (status === "SUBMITTED") {
+    return "Submitted";
+  }
+  return "Locked";
+}
+
 export default async function ClientProjectsPage() {
   const projects = await getProjectsByClient();
 
@@ -104,11 +114,7 @@ export default async function ClientProjectsPage() {
                                 {pq.template?.name || "Questionnaire"}
                               </p>
                               <p className="text-muted-foreground text-xs">
-                                {pq.status === "DRAFT"
-                                  ? "In progress"
-                                  : pq.status === "SUBMITTED"
-                                    ? "Submitted"
-                                    : "Locked"}
+                                {getQuestionnaireStatusText(pq.status)}
                               </p>
                             </div>
                           </div>

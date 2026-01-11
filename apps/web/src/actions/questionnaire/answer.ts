@@ -109,7 +109,7 @@ export async function saveAnswer(
       },
     });
 
-    let answer;
+    let answer: { id: string };
     if (existing) {
       answer = await prisma.answer.update({
         where: { id: existing.id },
