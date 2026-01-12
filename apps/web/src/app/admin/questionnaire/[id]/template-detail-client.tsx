@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Edit2, GripVertical, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit2, GripVertical, Plus, Trash2, X } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -66,6 +66,8 @@ export function TemplateDetailClient({ template }: { template: Template }) {
   const [newQuestionLabel, setNewQuestionLabel] = useState("");
   const [newQuestionType, setNewQuestionType] = useState<QuestionType>("TEXT");
   const [newQuestionRequired, setNewQuestionRequired] = useState(false);
+  const [newQuestionOptions, setNewQuestionOptions] = useState<string[]>([]);
+  const [newOptionInput, setNewOptionInput] = useState("");
 
   // Drag and drop state
   const [questions, setQuestions] = useState<Question[]>(template.questions);
@@ -112,11 +114,20 @@ export function TemplateDetailClient({ template }: { template: Template }) {
       return;
     }
 
+    // Validate options for select types
+    const needsOptions =
+      newQuestionType === "SELECT" || newQuestionType === "MULTI_SELECT";
+    if (needsOptions && newQuestionOptions.length < 2) {
+      toast.error("Please add at least 2 options for choice questions");
+      return;
+    }
+
     startTransition(async () => {
       const result = await addQuestion(template.id, {
         label: newQuestionLabel.trim(),
         type: newQuestionType,
         required: newQuestionRequired,
+        options: needsOptions ? { choices: newQuestionOptions } : null,
       });
 
       if (result.success) {
@@ -124,6 +135,8 @@ export function TemplateDetailClient({ template }: { template: Template }) {
         setNewQuestionLabel("");
         setNewQuestionType("TEXT");
         setNewQuestionRequired(false);
+        setNewQuestionOptions([]);
+        setNewOptionInput("");
         setShowAddQuestion(false);
         router.refresh();
       } else {
@@ -330,9 +343,17 @@ export function TemplateDetailClient({ template }: { template: Template }) {
                 <Label>Type</Label>
                 <select
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  onChange={(e) =>
-                    setNewQuestionType(e.target.value as QuestionType)
-                  }
+                  onChange={(e) => {
+                    setNewQuestionType(e.target.value as QuestionType);
+                    // Clear options if switching to non-select type
+                    if (
+                      e.target.value !== "SELECT" &&
+                      e.target.value !== "MULTI_SELECT"
+                    ) {
+                      setNewQuestionOptions([]);
+                      setNewOptionInput("");
+                    }
+                  }}
                   value={newQuestionType}
                 >
                   {questionTypes.map((type) => (
@@ -343,6 +364,96 @@ export function TemplateDetailClient({ template }: { template: Template }) {
                 </select>
               </div>
             </div>
+
+            {/* Options Input for SELECT/MULTI_SELECT */}
+            {(newQuestionType === "SELECT" ||
+              newQuestionType === "MULTI_SELECT") && (
+              <div className="space-y-3 rounded-lg border border-border bg-background p-4">
+                <div className="flex items-center justify-between">
+                  <Label>Options *</Label>
+                  <span className="text-muted-foreground text-xs">
+                    Min 2 options required
+                  </span>
+                </div>
+
+                {/* Existing Options */}
+                {newQuestionOptions.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {newQuestionOptions.map((option, index) => (
+                      <div
+                        className="flex items-center gap-1 rounded-md bg-muted px-3 py-1.5 text-sm"
+                        key={option}
+                      >
+                        <span>{option}</span>
+                        <button
+                          className="ml-1 rounded-full p-0.5 text-muted-foreground hover:bg-destructive/20 hover:text-destructive"
+                          onClick={() => {
+                            setNewQuestionOptions(
+                              newQuestionOptions.filter((_, i) => i !== index)
+                            );
+                          }}
+                          type="button"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add New Option */}
+                <div className="flex gap-2">
+                  <Input
+                    className="flex-1"
+                    onChange={(e) => setNewOptionInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (
+                          newOptionInput.trim() &&
+                          !newQuestionOptions.includes(newOptionInput.trim())
+                        ) {
+                          setNewQuestionOptions([
+                            ...newQuestionOptions,
+                            newOptionInput.trim(),
+                          ]);
+                          setNewOptionInput("");
+                        }
+                      }
+                    }}
+                    placeholder="Type an option and press Enter"
+                    value={newOptionInput}
+                  />
+                  <Button
+                    disabled={
+                      !newOptionInput.trim() ||
+                      newQuestionOptions.includes(newOptionInput.trim())
+                    }
+                    onClick={() => {
+                      if (
+                        newOptionInput.trim() &&
+                        !newQuestionOptions.includes(newOptionInput.trim())
+                      ) {
+                        setNewQuestionOptions([
+                          ...newQuestionOptions,
+                          newOptionInput.trim(),
+                        ]);
+                        setNewOptionInput("");
+                      }
+                    }}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  Press Enter or click + to add an option. Click × to remove.
+                </p>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm">
                 <input
@@ -355,7 +466,11 @@ export function TemplateDetailClient({ template }: { template: Template }) {
               </label>
               <div className="flex gap-2">
                 <Button
-                  onClick={() => setShowAddQuestion(false)}
+                  onClick={() => {
+                    setShowAddQuestion(false);
+                    setNewQuestionOptions([]);
+                    setNewOptionInput("");
+                  }}
                   size="sm"
                   variant="outline"
                 >
@@ -424,6 +539,27 @@ export function TemplateDetailClient({ template }: { template: Template }) {
                       </Badge>
                     )}
                   </div>
+                  {/* Show options if present */}
+                  {(() => {
+                    const opts = question.options as {
+                      choices?: string[];
+                    } | null;
+                    if (opts?.choices && opts.choices.length > 0) {
+                      return (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {opts.choices.map((choice) => (
+                            <span
+                              className="rounded bg-muted px-2 py-0.5 text-muted-foreground text-xs"
+                              key={choice}
+                            >
+                              {choice}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 <div className="flex items-center gap-1">
