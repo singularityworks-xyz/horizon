@@ -53,8 +53,10 @@ export default function SignInForm({
   }
 
   return (
-    <div className="mx-auto mt-10 w-full max-w-md p-6">
-      <h1 className="mb-6 text-center font-bold text-3xl">Welcome Back</h1>
+    <div className="mx-auto mt-10 w-full max-w-md animate-fade-in-scale p-6">
+      <h1 className="mb-6 text-center font-bold text-3xl text-foreground">
+        Welcome Back
+      </h1>
 
       <Button
         className="mb-4 w-full"
@@ -71,6 +73,17 @@ export default function SignInForm({
         Continue with Google
       </Button>
 
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-border border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+      </div>
+
       <form
         className="space-y-4"
         onSubmit={(e) => {
@@ -85,6 +98,7 @@ export default function SignInForm({
               <div className="space-y-2">
                 <Label htmlFor={field.name}>Email</Label>
                 <Input
+                  className="transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/30"
                   id={field.name}
                   name={field.name}
                   onBlur={field.handleBlur}
@@ -93,7 +107,10 @@ export default function SignInForm({
                   value={field.state.value}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p className="text-red-500" key={error?.message}>
+                  <p
+                    className="animate-slide-down text-destructive text-sm"
+                    key={error?.message}
+                  >
                     {error?.message}
                   </p>
                 ))}
@@ -108,6 +125,7 @@ export default function SignInForm({
               <div className="space-y-2">
                 <Label htmlFor={field.name}>Password</Label>
                 <Input
+                  className="transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/30"
                   id={field.name}
                   name={field.name}
                   onBlur={field.handleBlur}
@@ -116,7 +134,10 @@ export default function SignInForm({
                   value={field.state.value}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p className="text-red-500" key={error?.message}>
+                  <p
+                    className="animate-slide-down text-destructive text-sm"
+                    key={error?.message}
+                  >
                     {error?.message}
                   </p>
                 ))}
@@ -128,19 +149,19 @@ export default function SignInForm({
         <form.Subscribe>
           {(state) => (
             <Button
-              className="w-full"
+              className="mt-6 w-full"
               disabled={!state.canSubmit || state.isSubmitting}
               type="submit"
             >
-              {state.isSubmitting ? "Submitting..." : "Sign In"}
+              {state.isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           )}
         </form.Subscribe>
       </form>
 
-      <div className="mt-4 text-center">
+      <div className="mt-6 text-center">
         <Button
-          className="text-indigo-600 hover:text-indigo-800"
+          className="text-primary hover:text-primary/80"
           onClick={onSwitchToSignUp}
           variant="link"
         >

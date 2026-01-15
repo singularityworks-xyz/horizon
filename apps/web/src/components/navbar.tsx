@@ -22,14 +22,16 @@ export default function Navbar() {
   const { data: session, isPending } = authClient.useSession();
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-border border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-border/50 border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-6">
         {/* Logo - Always visible */}
-        <Link className="flex items-center gap-2" href="/">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-background shadow-md shadow-primary/20">
-            <span className="font-bold text-2xl text-primary">H</span>
+        <Link className="group flex items-center gap-3" href="/">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-card shadow-lg shadow-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:border-primary/80 group-hover:shadow-primary/40">
+            <span className="font-bold text-primary text-xl transition-transform duration-300 group-hover:scale-110">
+              H
+            </span>
           </div>
-          <span className="hidden font-semibold text-xl md:inline-block">
+          <span className="hidden font-semibold text-foreground text-lg transition-colors duration-300 group-hover:text-primary md:inline-block">
             HORIZON
           </span>
         </Link>
@@ -38,7 +40,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <ModeToggle />
 
-          {isPending && <Skeleton className="h-10 w-24" />}
+          {isPending && <Skeleton className="h-10 w-24 rounded-lg" />}
 
           {!isPending && session && (
             // Logged in state - Refined design matching admin-header
@@ -56,7 +58,7 @@ export default function Navbar() {
                 <DropdownMenuTrigger
                   render={
                     <Button
-                      className="relative h-10 w-10 overflow-hidden rounded-full p-0"
+                      className="relative h-10 w-10 overflow-hidden rounded-full p-0 transition-all duration-300 hover:ring-2 hover:ring-primary/50 hover:ring-offset-2 hover:ring-offset-background"
                       variant="ghost"
                     >
                       <div className="flex h-full w-full items-center justify-center bg-primary font-semibold text-primary-foreground">
@@ -65,11 +67,14 @@ export default function Navbar() {
                     </Button>
                   }
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground transition-all duration-300 hover:bg-primary/90">
                     {session.user.name?.charAt(0).toUpperCase() || "U"}
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 animate-pop-in"
+                >
                   <DropdownMenuGroup>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
@@ -85,7 +90,7 @@ export default function Navbar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem
-                      className="cursor-pointer text-destructive focus:text-destructive"
+                      className="cursor-pointer text-destructive transition-all duration-200 hover:bg-destructive/10 focus:text-destructive"
                       onClick={() => {
                         authClient.signOut({
                           fetchOptions: {
@@ -108,7 +113,12 @@ export default function Navbar() {
           {!(isPending || session) && (
             // Not logged in state
             <Link href="/login">
-              <Button variant="outline">Sign In</Button>
+              <Button
+                className="transition-all duration-300 hover:border-primary hover:bg-primary/10 hover:text-primary"
+                variant="outline"
+              >
+                Sign In
+              </Button>
             </Link>
           )}
         </div>

@@ -56,8 +56,36 @@ export default function SignUpForm({
   }
 
   return (
-    <div className="mx-auto mt-10 w-full max-w-md p-6">
-      <h1 className="mb-6 text-center font-bold text-3xl">Create Account</h1>
+    <div className="mx-auto mt-10 w-full max-w-md animate-fade-in-scale p-6">
+      <h1 className="mb-6 text-center font-bold text-3xl text-foreground">
+        Create Account
+      </h1>
+
+      <Button
+        className="mb-4 w-full"
+        onClick={async () => {
+          try {
+            await signIn();
+          } catch {
+            toast.error("Failed to sign in with Google");
+          }
+        }}
+        type="button"
+        variant="outline"
+      >
+        Continue with Google
+      </Button>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-border border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with email
+          </span>
+        </div>
+      </div>
 
       <form
         className="space-y-4"
@@ -73,6 +101,7 @@ export default function SignUpForm({
               <div className="space-y-2">
                 <Label htmlFor={field.name}>Name</Label>
                 <Input
+                  className="transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/30"
                   id={field.name}
                   name={field.name}
                   onBlur={field.handleBlur}
@@ -80,7 +109,10 @@ export default function SignUpForm({
                   value={field.state.value}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p className="text-red-500" key={error?.message}>
+                  <p
+                    className="animate-slide-down text-destructive text-sm"
+                    key={error?.message}
+                  >
                     {error?.message}
                   </p>
                 ))}
@@ -95,6 +127,7 @@ export default function SignUpForm({
               <div className="space-y-2">
                 <Label htmlFor={field.name}>Email</Label>
                 <Input
+                  className="transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/30"
                   id={field.name}
                   name={field.name}
                   onBlur={field.handleBlur}
@@ -103,7 +136,10 @@ export default function SignUpForm({
                   value={field.state.value}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p className="text-red-500" key={error?.message}>
+                  <p
+                    className="animate-slide-down text-destructive text-sm"
+                    key={error?.message}
+                  >
                     {error?.message}
                   </p>
                 ))}
@@ -118,6 +154,7 @@ export default function SignUpForm({
               <div className="space-y-2">
                 <Label htmlFor={field.name}>Password</Label>
                 <Input
+                  className="transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/30"
                   id={field.name}
                   name={field.name}
                   onBlur={field.handleBlur}
@@ -126,7 +163,10 @@ export default function SignUpForm({
                   value={field.state.value}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p className="text-red-500" key={error?.message}>
+                  <p
+                    className="animate-slide-down text-destructive text-sm"
+                    key={error?.message}
+                  >
                     {error?.message}
                   </p>
                 ))}
@@ -138,33 +178,19 @@ export default function SignUpForm({
         <form.Subscribe>
           {(state) => (
             <Button
-              className="w-full"
+              className="mt-6 w-full"
               disabled={!state.canSubmit || state.isSubmitting}
               type="submit"
             >
-              {state.isSubmitting ? "Submitting..." : "Sign Up"}
+              {state.isSubmitting ? "Creating account..." : "Sign Up"}
             </Button>
           )}
         </form.Subscribe>
-        <Button
-          className="mb-4 w-full"
-          onClick={async () => {
-            try {
-              await signIn();
-            } catch {
-              toast.error("Failed to sign in with Google");
-            }
-          }}
-          type="button"
-          variant="outline"
-        >
-          Continue with Google
-        </Button>
       </form>
 
-      <div className="mt-4 text-center">
+      <div className="mt-6 text-center">
         <Button
-          className="text-indigo-600 hover:text-indigo-800"
+          className="text-primary hover:text-primary/80"
           onClick={onSwitchToSignIn}
           variant="link"
         >
